@@ -3,6 +3,7 @@
 	"displayName": "Ginkgo Outline",
 	"description": "Display an outline of the ginkgo containers and specs in a file, and enable navigation to containers and specs using QuickView.",
 	"version": "0.0.1",
+	"publisher": "dlipovetsky",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -10,16 +11,28 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:ginkgo-outline.helloWorld"
+		"onView:ginkgoOutline"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "ginkgo-outline.helloWorld",
-				"title": "Hello World"
-			}
-		]
+		"viewsContainers": {
+			"panel": [
+				{
+					"id": "ginkgo",
+					"title": "Ginkgo",
+					"icon": ""
+				}
+			]
+		},
+		"views": {
+			"ginkgo": [
+				{
+					"id": "ginkgoOutline",
+					"name": "Outline",
+					"icon": ""
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
