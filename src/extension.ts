@@ -2,10 +2,13 @@
 
 import * as vscode from 'vscode';
 
-import { GinkgoOutlineProvider } from './ginkgoOutline';
-
 export function activate(context: vscode.ExtensionContext) {
-
-	const ginkgoOutlineProvider = new GinkgoOutlineProvider(context);
-	vscode.window.registerTreeDataProvider('ginkgoOutline', ginkgoOutlineProvider);
+	// context.subscriptions.push(vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
+	// 	const quickPick = vscode.window.createQuickPick();
+	// 	quickPick.items = 
+	// 	quickPick.onDidChangeSelection();
+	// 	quickPick.matchOnDescription = true;
+	// 	quickPick.onDidHide(() => quickPick.dispose());
+	// 	quickPick.show();
+	// }));
 }

@@ -11,28 +11,16 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:ginkgoOutline"
+		"onCommand:ginkgooutline.GotoSymbolInEditor"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"viewsContainers": {
-			"panel": [
-				{
-					"id": "ginkgo",
-					"title": "Ginkgo",
-					"icon": ""
-				}
-			]
-		},
-		"views": {
-			"ginkgo": [
-				{
-					"id": "ginkgoOutline",
-					"name": "Outline",
-					"icon": ""
-				}
-			]
-		}
+		"commands": [
+			{
+				"command": "ginkgooutline.GotoSymbolInEditor",
+				"title": "Go to Ginkgo Symbol in Editor"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
