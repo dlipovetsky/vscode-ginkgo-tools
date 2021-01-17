@@ -11,8 +11,8 @@ export interface GinkgoNode {
     focused: boolean;
     pending: boolean;
 
-    nodes?: GinkgoNode[];
-    parent?: GinkgoNode;
+    nodes: GinkgoNode[];
+    parent: GinkgoNode;
 }
 
 export interface Outline {
@@ -42,10 +42,8 @@ export function fromJSON(input: string): Outline {
             flat.push(n);
 
             // Annotate every child with its parent
-            if (n.nodes) {
-                for (let c of n.nodes) {
-                    c.parent = n;
-                }
+            for (let c of n.nodes) {
+                c.parent = n;
             }
         });
     }
@@ -53,7 +51,7 @@ export function fromJSON(input: string): Outline {
     return { nested, flat };
 }
 
-function preOrder(node: GinkgoNode, f: Function): void {
+export function preOrder(node: GinkgoNode, f: Function): void {
     f(node);
     if (node.nodes) {
         for (let c of node.nodes) {
