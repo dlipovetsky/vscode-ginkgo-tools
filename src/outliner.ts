@@ -16,8 +16,8 @@ export interface GinkgoNode {
 }
 
 export interface Outline {
-    tree: GinkgoNode;
-    list: GinkgoNode[];
+    nested: GinkgoNode[];
+    flat: GinkgoNode[];
 }
 
 // fromDocument returns the ginkgo outline for the TextDocument. It calls ginkgo
@@ -33,37 +33,24 @@ export async function fromDocument(doc: vscode.TextDocument): Promise<Outline> {
 }
 
 export function fromJSON(input: string): Outline {
-    const nodes: GinkgoNode[] = JSON.parse(input);
-    const root = {
-        name: '',
-        text: '',
-        start: 0,
-        end: 0,
-        spec: false,
-        focused: false,
-        pending: false,
+    const nested: GinkgoNode[] = JSON.parse(input);
 
-        nodes: nodes,
-        parent: undefined,
-    };
+    const flat: GinkgoNode[] = [];
+    for (let n of nested) {
+        preOrder(n, function (n: GinkgoNode) {
+            // Construct the "flat" list of nodes
+            flat.push(n);
 
-    const list: GinkgoNode[] = [];
-    preOrder(root, function (n: GinkgoNode) {
-        // Construct the "flat" list of nodes
-        list.push(n);
-
-        // Annotate every child with its parent
-        if (n.nodes) {
-            for (let c of n.nodes) {
-                c.parent = n;
+            // Annotate every child with its parent
+            if (n.nodes) {
+                for (let c of n.nodes) {
+                    c.parent = n;
+                }
             }
-        }
-    });
+        });
+    }
 
-    return {
-        tree: root,
-        list: list
-    };
+    return { nested, flat };
 }
 
 function preOrder(node: GinkgoNode, f: Function): void {

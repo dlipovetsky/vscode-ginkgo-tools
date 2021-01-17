@@ -9,7 +9,7 @@ describe('outline.fromJSON', function () {
     it('should return an Outline with equivalent tree and list representations', function () {
         const got = outliner.fromJSON(sampleOutput);
         // console.log(util.inspect(got.tree, false, null));
-        console.log(util.inspect(got.list, false, 1));
-        console.log(got.list.length);
+        console.log(util.inspect(got.flat, false, 1));
+        console.log(got.flat.length);
     });
 });
