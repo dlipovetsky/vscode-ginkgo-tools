@@ -5,37 +5,43 @@ class GinkgoNodeItem implements vscode.QuickPickItem {
     label: string;
     description: string;
     detail = '';
+    node: outliner.GinkgoNode;
 
-    constructor(public node: outliner.GinkgoNode) {
+    constructor(public n: outliner.GinkgoNode) {
         // TODO: Prefix a "theme icon" to the label. Choose icon based on node.name (Describe, Context, It, etc).
-        this.label = node.text;
-        this.description = node.name;
+        this.label = n.text;
+        this.description = n.name;
+        this.node = n;
     }
 }
 
-export async function fromDocument() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        return;
-    }
-    if (!editor.document) {
-        return;
-    }
+export async function fromTextEditor(editor: vscode.TextEditor) {
     try {
-        const node = await new Promise<outliner.GinkgoNode | undefined>((resolve, reject) => {
-            const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
-            picker.placeholder = 'Go to ginkgo node';
+        const out = await outliner.fromDocument(editor.document);
 
-            const out = outliner.fromDocument(editor.document);
-
-
-            picker.show();
+        // TODO: use showQuickPick instead
+        const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
+        picker.placeholder = 'Go to ginkgo node';
+        picker.items = out.flat.map(n => new GinkgoNodeItem(n));
+        picker.onDidChangeActive(selection => {
+            if (!selection[0]) {
+                return;
+            }
+            const anchor = editor.document.positionAt(selection[0].node.start);
+            const active =  editor.document.positionAt(selection[0].node.end);
+            editor.selection = new vscode.Selection(anchor, active);
         });
-        if (!node) {
-            return;
-        }
-        const pos = editor.document.positionAt(node.start);
-        editor.selection = new vscode.Selection(pos, pos);
+        picker.onDidAccept(() => {
+            if(!picker.selectedItems[0]) {
+                return;
+            }
+            const anchor = editor.document.positionAt(picker.selectedItems[0].node.start);
+            editor.selection = new vscode.Selection(anchor, anchor);
+
+            picker.dispose();
+        });
+        picker.onDidHide(() => picker.dispose());
+        picker.show();
     } finally {
         // handle rejected promise
     }
