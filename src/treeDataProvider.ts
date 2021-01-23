@@ -1,4 +1,3 @@
-import { timeStamp } from 'console';
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 
@@ -36,13 +35,19 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     getTreeItem(element: outliner.GinkgoNode): vscode.TreeItem {
-        const label = `${element.name}:${element.text}`;
+        const label = `${element.name}: ${element.text}`;
         const collapsibleState: vscode.TreeItemCollapsibleState = element.nodes.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
         const treeItem = new vscode.TreeItem(label, collapsibleState);
         // treeItem.description
         // treeItem.iconPath
         // treeItem.command
-        // treeItem.tooltip
+        treeItem.tooltip = new vscode.MarkdownString(`**name:** ${element.name}  \n
+**text:** ${element.text}  \n
+**start:** ${element.start}  \n
+**end:** ${element.end}  \n
+**spec:** ${element.spec}  \n
+**focused:** ${element.focused}  \n
+**pending:** ${element.pending}`, false);
         return treeItem;
     }
 
