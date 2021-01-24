@@ -8,6 +8,9 @@ import * as highlighter from './highlighter';
 const doubleClickTimeMS: number = 300;
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
+    private _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
+    readonly onDidChangeTreeData: vscode.Event<outliner.GinkgoNode | undefined> = this._onDidChangeTreeData.event;
+
     private editor?: vscode.TextEditor;
     private roots: outliner.GinkgoNode[] = [];
 
@@ -15,25 +18,31 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedTime?: number;
 
     constructor(private context: vscode.ExtensionContext) {
-        // vscode.window.onDidChangeActiveTextEditor(() => this.onActiveEditorChanged());
+        vscode.window.onDidChangeActiveTextEditor(() => this.onActiveEditorChanged());
         // vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
+    }
+
+    private onActiveEditorChanged(): void {
+        this.editor = undefined;
+        this.roots = [];
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     private async makeRoots() {
         this.editor = vscode.window.activeTextEditor;
         if (this.editor && this.editor.document) {
-            const outline = await outliner.fromDocument(this.editor.document);
-            this.roots = outline.nested;
+            try {
+                const outline = await outliner.fromDocument(this.editor.document);
+                this.roots = outline.nested;
+            } catch (err) {
+                // log error
+            }
         }
     }
 
     async getChildren(element?: outliner.GinkgoNode | undefined): Promise<outliner.GinkgoNode[]> {
         if (this.roots.length === 0) {
-            try {
-                await this.makeRoots();
-            } catch {
-                // log error
-            }
+            await this.makeRoots();
         }
 
         if (!element) {
