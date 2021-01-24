@@ -3,26 +3,25 @@ import * as outliner from './outliner';
 
 const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationType({
     light: {
-        backgroundColor:  { id: 'editor.selectionHighlightBackground' },
+        backgroundColor: { id: 'editor.selectionHighlightBackground' },
     },
     dark: {
-        backgroundColor:  { id: 'editor.selectionHighlightBackground' },
-		borderWidth: '1px',
-		borderStyle: 'solid',
+        backgroundColor: { id: 'editor.selectionHighlightBackground' },
+        borderWidth: '1px',
+        borderStyle: 'solid',
         borderColor: { id: 'contrastActiveBorder' }
     },
 });
 
 class GinkgoNodeItem implements vscode.QuickPickItem {
     label: string;
-    description: string;
+    description = '';
     detail = '';
     node: outliner.GinkgoNode;
 
     constructor(public n: outliner.GinkgoNode) {
         // TODO: Prefix a "theme icon" to the label. Choose icon based on node.name (Describe, Context, It, etc).
-        this.label = n.text;
-        this.description = n.name;
+        this.label = `${n.name}: ${n.text}`;
         this.node = n;
     }
 }
