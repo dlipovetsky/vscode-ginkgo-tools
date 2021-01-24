@@ -14,4 +14,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(context);
 	vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider);
+	vscode.commands.registerCommand('ginkgooutline.clickTreeItem', node => ginkgoTreeDataProvider.clickTreeItem(node));
 }
