@@ -5,6 +5,7 @@ import * as highlighter from './highlighter';
 // doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
 // that are interpreted as one "double click," as opposed to separate single
 // clicks.
+// TODO: make this a configuration option
 const doubleClickTimeMS: number = 300;
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
@@ -18,19 +19,25 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedTime?: number;
 
     constructor(private context: vscode.ExtensionContext) {
-        vscode.window.onDidChangeActiveTextEditor(() => this.onActiveEditorChanged());
-        // vscode.workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e));
+        vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
+        vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
+        this.editor = vscode.window.activeTextEditor;
     }
 
-    private onActiveEditorChanged(): void {
-        this.editor = undefined;
+    private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
+        this.editor = editor;
         this.roots = [];
         this._onDidChangeTreeData.fire(undefined);
     }
 
+    private onDocumentChanged(evt: vscode.TextDocumentChangeEvent): void {
+        this.roots = [];
+        // TODO: make autorefresh a configuration option
+        this._onDidChangeTreeData.fire(undefined);
+    }
+
     private async makeRoots() {
-        this.editor = vscode.window.activeTextEditor;
-        if (this.editor && this.editor.document) {
+        if (this.editor) {
             try {
                 const outline = await outliner.fromDocument(this.editor.document);
                 this.roots = outline.nested;
