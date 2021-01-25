@@ -1,17 +1,6 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
-
-const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationType({
-    light: {
-        backgroundColor: { id: 'editor.selectionHighlightBackground' },
-    },
-    dark: {
-        backgroundColor: { id: 'editor.selectionHighlightBackground' },
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        borderColor: { id: 'contrastActiveBorder' }
-    },
-});
+import * as highlighter from './highlighter';
 
 class GinkgoNodeItem implements vscode.QuickPickItem {
     label: string;
@@ -30,31 +19,26 @@ export async function fromTextEditor(editor: vscode.TextEditor) {
     try {
         const out = await outliner.fromDocument(editor.document);
 
-        // TODO: use showQuickPick instead
         const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
-        picker.placeholder = 'Go to ginkgo node';
+        picker.placeholder = 'Go to Ginkgo spec or container';
         picker.items = out.flat.map(n => new GinkgoNodeItem(n));
         picker.onDidChangeActive(selection => {
             if (!selection[0]) {
                 return;
             }
-            const start = editor.document.positionAt(selection[0].node.start);
-            const end = editor.document.positionAt(selection[0].node.end);
-            const range = new vscode.Range(start, end);
-            editor.revealRange(range);
-            editor.setDecorations(symbolHighlightDecorationType, [range]);
+            highlighter.highlightNode(editor, selection[0].node);
         });
         picker.onDidAccept(() => {
-            if (!picker.selectedItems[0]) {
-                return;
+            const item = picker.selectedItems[0];
+            if (item) {
+                highlighter.highlightOff(editor);
+                const anchor = editor.document.positionAt(item.node.start);
+                editor.selection = new vscode.Selection(anchor, anchor);
             }
-            const anchor = editor.document.positionAt(picker.selectedItems[0].node.start);
-            editor.selection = new vscode.Selection(anchor, anchor);
-            editor.setDecorations(symbolHighlightDecorationType, []);
             picker.dispose();
         });
         picker.onDidHide(() => {
-            editor.setDecorations(symbolHighlightDecorationType, []);
+            highlighter.highlightOff(editor);
             picker.dispose();
         });
         picker.show();
