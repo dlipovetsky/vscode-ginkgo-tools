@@ -13,10 +13,7 @@ const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationTy
     },
 });
 
-export function highlightNode(editor: vscode.TextEditor | undefined, node: outliner.GinkgoNode) {
-    if (!editor) {
-        return;
-    }
+export function highlightNode(editor: vscode.TextEditor, node: outliner.GinkgoNode) {
     if (editor.document.isClosed) {
         return;
     }
@@ -25,10 +22,7 @@ export function highlightNode(editor: vscode.TextEditor | undefined, node: outli
     editor.setDecorations(symbolHighlightDecorationType, [range]);
 }
 
-export function highlightOff(editor: vscode.TextEditor | undefined) {
-    if (!editor) {
-        return;
-    }
+export function highlightOff(editor: vscode.TextEditor) {
     editor.setDecorations(symbolHighlightDecorationType, []);
 }
 
