@@ -7,7 +7,7 @@ import * as symbolPicker from './symbolPicker';
 import * as treeDataProvider from './treeDataProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-	const cachingOutliner = new CachingOutliner(outliner.fromDocument);
+	const cachingOutliner = new CachingOutliner(outliner.fromDocument, 1000 * 60 * 60);
 
 	vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', () => {
 		if (!vscode.window.activeTextEditor) {
