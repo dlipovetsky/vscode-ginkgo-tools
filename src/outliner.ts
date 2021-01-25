@@ -57,16 +57,15 @@ export function preOrder(node: GinkgoNode, f: Function): void {
 
 async function callGinkgoOutline(doc: vscode.TextDocument): Promise<string> {
     return new Promise(function (resolve, reject) {
-        let p: cp.ChildProcess;
-        p = cp.execFile("/home/dlipovetsky/projects/ginkgo/ginkgo/ginkgo", ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {
+        const p = cp.execFile("/home/dlipovetsky/projects/ginkgo/ginkgo/ginkgo", ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {
             try {
                 if (err) {
                     return reject(`error starting ginkgo outline: ${err}`);
                 }
                 const outline = stdout.toString();
                 return resolve(outline);
-            } catch (e) {
-                reject(`error running ginkgo outline: ${e}`);
+            } catch (exc) {
+                reject(`error running ginkgo outline: ${exc}`);
             }
         });
         if (!p.stdin) {
