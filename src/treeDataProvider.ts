@@ -72,9 +72,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
             title: ''
         };
 
-        // treeItem.description
+        // TODO treeItem.description
 
-        // treeItem.iconPath
+        // TODO treeItem.iconPath
 
         treeItem.tooltip = new vscode.MarkdownString(`**name:** ${element.name}  \n
 **text:** ${element.text}  \n
