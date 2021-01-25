@@ -18,7 +18,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedNode?: outliner.GinkgoNode;
     private lastClickedTime?: number;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }) {
         vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
         vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
         this.editor = vscode.window.activeTextEditor;
@@ -39,10 +39,12 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private async makeRoots() {
         if (this.editor) {
             try {
-                const outline = await outliner.fromDocument(this.editor.document);
+                const outline = await this.outlineFromDoc(this.editor.document);
                 this.roots = outline.nested;
             } catch (err) {
                 // log error
+                const channel = vscode.window.createOutputChannel("ginkgo");
+                channel.appendLine(`error getting outline: ${err}`);
             }
         }
     }

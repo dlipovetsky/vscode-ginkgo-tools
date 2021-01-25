@@ -15,9 +15,9 @@ class GinkgoNodeItem implements vscode.QuickPickItem {
     }
 }
 
-export async function fromTextEditor(editor: vscode.TextEditor) {
+export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }) {
     try {
-        const out = await outliner.fromDocument(editor.document);
+        const out = await outlineFromDoc(editor.document);
 
         const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
         picker.placeholder = 'Go to Ginkgo spec or container';
@@ -42,7 +42,9 @@ export async function fromTextEditor(editor: vscode.TextEditor) {
             picker.dispose();
         });
         picker.show();
-    } finally {
+    } catch (err) {
+        const channel = vscode.window.createOutputChannel("ginkgo");
+        channel.appendLine(`error getting outline: ${err}`);
         // handle rejected promise
     }
 }
