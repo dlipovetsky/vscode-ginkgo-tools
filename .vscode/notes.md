@@ -30,6 +30,7 @@
 - [x] Call `ginkgo outline` with current doc
 - [x] Implement auto-refreshing Outline view (refresh whenever
   doc.onDidChangeTextDocument event fires)
+- [ ] Conform to https://code.visualstudio.com/api/references/extension-guidelines
 - [ ] Review error handling. Log errors where needed.
 - [ ] Make auto-refresh and double-click configuration options.
 - [x] Implement "cachedOutliner" that only calls `ginkgo` if there is no outline
