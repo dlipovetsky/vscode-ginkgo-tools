@@ -16,35 +16,29 @@ class GinkgoNodeItem implements vscode.QuickPickItem {
 }
 
 export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }) {
-    try {
-        const out = await outlineFromDoc(editor.document);
+    const out = await outlineFromDoc(editor.document);
 
-        const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
-        picker.placeholder = 'Go to Ginkgo spec or container';
-        picker.items = out.flat.map(n => new GinkgoNodeItem(n));
-        picker.onDidChangeActive(selection => {
-            if (!selection[0]) {
-                return;
-            }
-            highlighter.highlightNode(editor, selection[0].node);
-        });
-        picker.onDidAccept(() => {
-            const item = picker.selectedItems[0];
-            if (item) {
-                highlighter.highlightOff(editor);
-                const anchor = editor.document.positionAt(item.node.start);
-                editor.selection = new vscode.Selection(anchor, anchor);
-            }
-            picker.dispose();
-        });
-        picker.onDidHide(() => {
+    const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
+    picker.placeholder = 'Go to Ginkgo spec or container';
+    picker.items = out.flat.map(n => new GinkgoNodeItem(n));
+    picker.onDidChangeActive(selection => {
+        if (!selection[0]) {
+            return;
+        }
+        highlighter.highlightNode(editor, selection[0].node);
+    });
+    picker.onDidAccept(() => {
+        const item = picker.selectedItems[0];
+        if (item) {
             highlighter.highlightOff(editor);
-            picker.dispose();
-        });
-        picker.show();
-    } catch (err) {
-        const channel = vscode.window.createOutputChannel("ginkgo");
-        channel.appendLine(`error getting outline: ${err}`);
-        // handle rejected promise
-    }
+            const anchor = editor.document.positionAt(item.node.start);
+            editor.selection = new vscode.Selection(anchor, anchor);
+        }
+        picker.dispose();
+    });
+    picker.onDidHide(() => {
+        highlighter.highlightOff(editor);
+        picker.dispose();
+    });
+    picker.show();
 }

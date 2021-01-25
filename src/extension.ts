@@ -13,7 +13,11 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!vscode.window.activeTextEditor) {
 			return;
 		}
-		symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
+		try {
+			symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
+		} catch (err) {
+			// log
+		}
 	});
 
 	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem');
