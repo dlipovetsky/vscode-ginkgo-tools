@@ -9,7 +9,7 @@ import * as highlighter from './highlighter';
 const doubleClickTimeMS: number = 300;
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
-    private _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
+    private readonly _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<outliner.GinkgoNode | undefined> = this._onDidChangeTreeData.event;
 
     private editor?: vscode.TextEditor;
@@ -18,7 +18,8 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedNode?: outliner.GinkgoNode;
     private lastClickedTime?: number;
 
-    constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }) {
+    constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
+        vscode.commands.registerCommand(this.clickTreeItemCommand, node => this.clickTreeItem(node));
         vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
         vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
         this.editor = vscode.window.activeTextEditor;
@@ -66,7 +67,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         const treeItem = new vscode.TreeItem(label, collapsibleState);
 
         treeItem.command = {
-            command: 'ginkgooutline.clickTreeItem',
+            command: this.clickTreeItemCommand,
             arguments: [element],
             title: ''
         };

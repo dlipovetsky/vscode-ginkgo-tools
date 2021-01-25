@@ -16,7 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
 		symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
 	});
 
-	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(doc => cachingOutliner.fromDocument(doc));
+	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem');
 	vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider);
-	vscode.commands.registerCommand('ginkgooutline.clickTreeItem', node => ginkgoTreeDataProvider.clickTreeItem(node));
 }
