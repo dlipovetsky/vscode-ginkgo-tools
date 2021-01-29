@@ -26,7 +26,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 		try {
 			await symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
 		} catch (err) {
-			outputChannel.appendLine(`Unable to create a QuickPick menu: ${err}`);
+			outputChannel.appendLine(`Could not create a QuickPick menu: ${err}`);
+			vscode.window.showErrorMessage('Could not create a QuickPick menu', ...['Open Log']).then(action => {
+				if (action === 'Open Log') {
+					outputChannel.show();
+				}
+			});
 		}
 	}));
 

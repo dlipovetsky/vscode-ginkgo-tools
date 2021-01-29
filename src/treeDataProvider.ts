@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
+import { outputChannel } from './extension';
 
 // doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
 // that are interpreted as one "double click," as opposed to separate single
@@ -41,20 +42,24 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private async makeRoots() {
         if (this.editor) {
-            try {
-                const outline = await this.outlineFromDoc(this.editor.document);
-                this.roots = outline.nested;
-            } catch (err) {
-                // log error
-                const channel = vscode.window.createOutputChannel("ginkgo");
-                channel.appendLine(`error getting outline: ${err}`);
-            }
+            const outline = await this.outlineFromDoc(this.editor.document);
+            this.roots = outline.nested;
         }
     }
 
     async getChildren(element?: outliner.GinkgoNode | undefined): Promise<outliner.GinkgoNode[]> {
         if (this.roots.length === 0) {
-            await this.makeRoots();
+            try {
+                await this.makeRoots();
+            } catch (err) {
+                outputChannel.appendLine(`Could not populate the outline view: ${err}`);
+                vscode.window.showErrorMessage('Could not populate the outline view', ...['Open Log']).then(action => {
+                    if (action === 'Open Log') {
+                        outputChannel.show();
+                    }
+                });
+                return [];
+            }
         }
 
         if (!element) {
