@@ -37,6 +37,7 @@
   cached for the doc.version. Evict when doc closes or changes. See
   https://github.com/microsoft/vscode/blob/98106c48a07d4d07f0f71b4db9b3ff156f223339/src/vs/workbench/contrib/timeline/browser/timelinePane.ts#L77
 - [ ] Support vscode cancellation tokens where possible
+- [ ] Suggest fixes for errors in notifications (e.g. install ginkgo, if it's not found)
 
 ## Implementation Notes
 
