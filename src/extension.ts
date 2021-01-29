@@ -18,7 +18,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 
 	const cachingOutliner = new CachingOutliner(outliner.fromDocument, 1000 * 60 * 60);
 
-	vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
+	ctx.subscriptions.push(vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
 		if (!vscode.window.activeTextEditor) {
 			outputChannel.appendLine('Cancelled QuickPick menu: no active text editor');
 			return;
@@ -28,8 +28,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 		} catch (err) {
 			outputChannel.appendLine(`Unable to create a QuickPick menu: ${err}`);
 		}
-	});
+	}));
 
 	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem');
-	vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider);
+	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider));
 }
