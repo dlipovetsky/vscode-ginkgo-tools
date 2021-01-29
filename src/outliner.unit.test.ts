@@ -1,3 +1,5 @@
+'use strict';
+
 import { describe, it } from "mocha";
 import * as util from "util";
 import { expect } from "chai";

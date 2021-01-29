@@ -1,3 +1,5 @@
+'use strict';
+
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 export interface GinkgoNode {

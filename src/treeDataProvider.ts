@@ -1,3 +1,5 @@
+'use strict';
+
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
