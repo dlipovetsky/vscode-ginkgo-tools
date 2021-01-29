@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
+import { outputChannel } from './extension';
 
 interface CacheValue {
     docVersion: number,
@@ -24,7 +25,7 @@ export class CachingOutliner {
                 try {
                     this.docToOutlineMap.delete(key);
                 } catch (err) {
-                    // TODO log to output channel
+                    outputChannel.appendLine(`Could not evict outline for document $[key} from cache: ${err}`);
                 }
             }, this.ttlMs);
 
