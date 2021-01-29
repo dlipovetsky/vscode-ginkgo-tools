@@ -22,7 +22,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedTime?: number;
 
     constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
-        vscode.commands.registerCommand(this.clickTreeItemCommand, node => this.clickTreeItem(node));
+        vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node));
         vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
         vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
         this.editor = vscode.window.activeTextEditor;
@@ -53,11 +53,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
                 await this.makeRoots();
             } catch (err) {
                 outputChannel.appendLine(`Could not populate the outline view: ${err}`);
-                vscode.window.showErrorMessage('Could not populate the outline view', ...['Open Log']).then(action => {
-                    if (action === 'Open Log') {
-                        outputChannel.show();
-                    }
-                });
+                const action = await vscode.window.showErrorMessage('Could not populate the outline view', ...['Open Log']);
+                if (action === 'Open Log') {
+                    outputChannel.show();
+                }
                 return [];
             }
         }
@@ -97,7 +96,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     // clickTreeItem is a workaround for the TreeView only supporting only one "click" command.
     // It is inspired by https://github.com/fernandoescolar/vscode-solution-explorer/blob/master/src/commands/OpenFileCommand.ts,
     // which was discovered in https://github.com/microsoft/vscode/issues/39601#issuecomment-376415352.
-    clickTreeItem(element: outliner.GinkgoNode) {
+    async clickTreeItem(element: outliner.GinkgoNode) {
         if (!this.editor) {
             return;
         }
@@ -114,7 +113,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
             highlighter.highlightOff(this.editor);
             const anchor = this.editor.document.positionAt(element.start);
             this.editor.selection = new vscode.Selection(anchor, anchor);
-            vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+            await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
             return;
         }
         highlighter.highlightNode(this.editor, element);
