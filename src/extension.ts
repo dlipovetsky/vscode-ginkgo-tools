@@ -18,13 +18,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 
 	const cachingOutliner = new CachingOutliner(outliner.fromDocument, 1000 * 60 * 60);
 
-	vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', () => {
+	vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
 		if (!vscode.window.activeTextEditor) {
 			outputChannel.appendLine('Cancelled QuickPick menu: no active text editor');
 			return;
 		}
 		try {
-			symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
+			await symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
 		} catch (err) {
 			outputChannel.appendLine(`Unable to create a QuickPick menu: ${err}`);
 		}
