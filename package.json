@@ -19,14 +19,14 @@
 		"commands": [
 			{
 				"command": "ginkgooutline.GotoSymbolInEditor",
-				"title": "Go to Ginkgo Symbol in Editor"
+				"title": "Ginkgo: Go to symbol"
 			}
 		],
 		"viewsContainers": {
 			"panel": [
 				{
 					"id": "ginkgooutline",
-					"title": "Ginkgo",
+					"title": "Ginkgo Panel",
 					"icon": ""
 				}
 			]
@@ -35,7 +35,7 @@
 			"ginkgooutline": [
 				{
 					"id": "ginkgooutline.views.outline",
-					"name": "Outline",
+					"name": "Ginkgo Outline",
 					"icon": ""
 				}
 			]
