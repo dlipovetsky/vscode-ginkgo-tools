@@ -11,7 +11,7 @@ import { getConfiguration, outputChannel } from './extension';
 // TODO: make this a configuration option
 const doubleClickTimeMS: number = 300;
 
-const updateConfigurationPropertyName = 'ginkgooutline.outline.view.update';
+const updateConfigurationPropertyName = 'updateOn';
 
 enum UpdateOn {
     onSave = "onSave",
@@ -22,6 +22,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private readonly _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<outliner.GinkgoNode | undefined> = this._onDidChangeTreeData.event;
 
+    private onDidChangeTextDocumentSubscription?: vscode.Disposable;
+    private onDidSaveTextDocumentSubscription?: vscode.Disposable;
+
     private editor?: vscode.TextEditor;
     private roots: outliner.GinkgoNode[] = [];
 
@@ -30,15 +33,50 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    private updateOn: UpdateOn = UpdateOn.onSave;
+    private updateOn?: UpdateOn;
 
     constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
-        ctx.subscriptions.push(vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt)));
-        ctx.subscriptions.push(vscode.workspace.onDidSaveTextDocument(doc => this.onDocumentSaved(doc)));
         ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => this.onConfigurationChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
+        this.applyConfiguration();
+    }
+
+    private applyConfiguration(): void {
+        const updateOnProperty = getConfiguration().get<UpdateOn | undefined>(updateConfigurationPropertyName);
+        switch (updateOnProperty) {
+            case UpdateOn.onSave:
+                this.updateOn = UpdateOn.onSave;
+                if (!this.onDidSaveTextDocumentSubscription) {
+                    this.onDidSaveTextDocumentSubscription = vscode.workspace.onDidSaveTextDocument(doc => this.onDocumentSaved(doc));
+                    this.ctx.subscriptions.push(this.onDidSaveTextDocumentSubscription);
+                }
+                if (this.onDidChangeTextDocumentSubscription) {
+                    this.onDidChangeTextDocumentSubscription.dispose();
+                    this.onDidChangeTextDocumentSubscription = undefined;
+                }
+                break;
+            case UpdateOn.onType:
+                this.updateOn = UpdateOn.onType;
+                if (this.onDidChangeTextDocumentSubscription) {
+                    this.onDidChangeTextDocumentSubscription = vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
+                    this.ctx.subscriptions.push(this.onDidChangeTextDocumentSubscription);
+                }
+                if (this.onDidSaveTextDocumentSubscription) {
+                    this.onDidSaveTextDocumentSubscription.dispose();
+                    this.onDidSaveTextDocumentSubscription = undefined;
+                }
+                break;
+            default:
+                outputChannel.appendLine(`configuration ${updateConfigurationPropertyName} has unknown value ${updateOnProperty}`);
+        }
+    }
+
+    private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
+        if (evt.affectsConfiguration(updateConfigurationPropertyName)) {
+            this.applyConfiguration();
+        }
     }
 
     private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
@@ -68,20 +106,6 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         }
         this.roots = [];
         this._onDidChangeTreeData.fire(undefined);
-    }
-
-    private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
-        if (evt.affectsConfiguration(updateConfigurationPropertyName)) {
-            const updateOnProperty = getConfiguration().get<UpdateOn | undefined>(updateConfigurationPropertyName);
-            switch (updateOnProperty) {
-                case UpdateOn.onSave:
-                    this.updateOn = UpdateOn.onSave;
-                case UpdateOn.onType:
-                    this.updateOn = UpdateOn.onType;
-                default:
-                    outputChannel.appendLine(`configuration ${updateConfigurationPropertyName} has unknown value ${updateOnProperty}`);
-            }
-        }
     }
 
     private async makeRoots() {

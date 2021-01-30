@@ -43,11 +43,11 @@
 		"configuration": {
 			"title": "Ginkgo Outline",
 			"properties": {
-				"ginkgooutline.outline.view.update": {
+				"ginkgooutline.updateOn": {
 					"type": "string",
 					"default": "onType",
 					"enum": [ "onSave", "onType" ],
-					"enumDescriptions": [ "On file save", "As you type"],
+					"enumDescriptions": [ "Update on file save", "Update as you type"],
 					"description": "When to update the outline view."
 				}
 			}
