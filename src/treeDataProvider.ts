@@ -23,10 +23,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
-        vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node));
-        vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
-        vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
+        ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
+        ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
+        ctx.subscriptions.push(vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
     }
 
