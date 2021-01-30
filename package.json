@@ -39,6 +39,18 @@
 					"icon": ""
 				}
 			]
+		},
+		"configuration": {
+			"title": "Ginkgo Outline",
+			"properties": {
+				"ginkgooutline.outline.view.update": {
+					"type": "string",
+					"default": "onType",
+					"enum": [ "onSave", "onType" ],
+					"enumDescriptions": [ "On file save", "As you type"],
+					"description": "When to update the outline view."
+				}
+			}
 		}
 	},
 	"scripts": {

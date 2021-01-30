@@ -6,7 +6,12 @@ import { CachingOutliner } from './cachingOutliner';
 import * as symbolPicker from './symbolPicker';
 import * as treeDataProvider from './treeDataProvider';
 
+const name = 'ginkgooutline';
 const displayName = 'Ginkgo Outline';
+
+export function getConfiguration(): vscode.WorkspaceConfiguration {
+	return vscode.workspace.getConfiguration(name);
+}
 
 export let outputChannel: vscode.OutputChannel;
 

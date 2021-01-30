@@ -3,13 +3,20 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
-import { outputChannel } from './extension';
+import { getConfiguration, outputChannel } from './extension';
 
 // doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
 // that are interpreted as one "double click," as opposed to separate single
 // clicks.
 // TODO: make this a configuration option
 const doubleClickTimeMS: number = 300;
+
+const updateConfigurationPropertyName = 'ginkgooutline.outline.view.update';
+
+enum UpdateOn {
+    onSave = "onSave",
+    onType = "onType",
+}
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
     private readonly _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
@@ -23,10 +30,14 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
+    private updateOn: UpdateOn = UpdateOn.onSave;
+
     constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
         ctx.subscriptions.push(vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt)));
+        ctx.subscriptions.push(vscode.workspace.onDidSaveTextDocument(doc => this.onDocumentSaved(doc)));
+        ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => this.onConfigurationChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
     }
 
@@ -37,13 +48,40 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onDocumentChanged(evt: vscode.TextDocumentChangeEvent): void {
+        if (this.updateOn !== UpdateOn.onType) {
+            return;
+        }
+        if (evt.contentChanges.length === 0) {
+            return;
+        }
         this.roots = [];
-        // TODO: make autorefresh a configuration option
         if (this.documentChangedTimer) {
             clearTimeout(this.documentChangedTimer);
             this.documentChangedTimer = undefined;
         }
         this.documentChangedTimer = setTimeout(() => this._onDidChangeTreeData.fire(undefined), 1000);
+    }
+
+    private onDocumentSaved(doc: vscode.TextDocument): void {
+        if (this.updateOn !== UpdateOn.onSave) {
+            return;
+        }
+        this.roots = [];
+        this._onDidChangeTreeData.fire(undefined);
+    }
+
+    private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
+        if (evt.affectsConfiguration(updateConfigurationPropertyName)) {
+            const updateOnProperty = getConfiguration().get<UpdateOn | undefined>(updateConfigurationPropertyName);
+            switch (updateOnProperty) {
+                case UpdateOn.onSave:
+                    this.updateOn = UpdateOn.onSave;
+                case UpdateOn.onType:
+                    this.updateOn = UpdateOn.onType;
+                default:
+                    outputChannel.appendLine(`configuration ${updateConfigurationPropertyName} has unknown value ${updateOnProperty}`);
+            }
+        }
     }
 
     private async makeRoots() {
