@@ -21,6 +21,8 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedNode?: outliner.GinkgoNode;
     private lastClickedTime?: number;
 
+    private documentChangedTimer?: NodeJS.Timeout;
+
     constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
         vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node));
         vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt));
@@ -37,7 +39,11 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private onDocumentChanged(evt: vscode.TextDocumentChangeEvent): void {
         this.roots = [];
         // TODO: make autorefresh a configuration option
-        this._onDidChangeTreeData.fire(undefined);
+        if (this.documentChangedTimer) {
+            clearTimeout(this.documentChangedTimer);
+            this.documentChangedTimer = undefined;
+        }
+        this.documentChangedTimer = setTimeout(() => this._onDidChangeTreeData.fire(undefined), 1000);
     }
 
     private async makeRoots() {
