@@ -58,17 +58,26 @@ export function preOrder(node: GinkgoNode, f: Function): void {
 }
 
 async function callGinkgoOutline(doc: vscode.TextDocument): Promise<string> {
-    return new Promise(function (resolve, reject) {
+    return await new Promise<string>((resolve, reject) => {
         const p = cp.execFile("/home/dlipovetsky/projects/ginkgo/ginkgo/ginkgo", ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {
             if (err) {
-                return reject(new Error(`error running ginkgo outline (exit code ${err.code}): ${stderr}`));
+                let msg = `error running "${err.cmd}"`;
+                if (err.code) {
+                    msg += ` (error code ${err.code})`;
+                }
+                if (stderr) {
+                    msg += `: ${stderr}`;
+                }
+                return reject(new Error(msg));
             }
             const outline = stdout.toString();
             return resolve(outline);
         });
-        if (!p.stdin) {
-            return reject(new Error(`unable to write to stdin of ginkgo outline process: pipe does not exist`));
+        if (p.pid) {
+            if (!p.stdin) {
+                return reject(new Error(`unable to write to stdin of ginkgo process: pipe does not exist`));
+            }
+            p.stdin.end(doc.getText());
         }
-        p.stdin.end(doc.getText());
     });
 }
