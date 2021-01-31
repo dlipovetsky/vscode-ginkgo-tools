@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
-import { getConfiguration, outputChannel } from './extension';
+import { affectsConfiguration, getConfiguration, outputChannel } from './extension';
 
 // doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
 // that are interpreted as one "double click," as opposed to separate single
@@ -11,19 +11,15 @@ import { getConfiguration, outputChannel } from './extension';
 // TODO: make this a configuration option
 const doubleClickTimeMS: number = 300;
 
-const updateConfigurationPropertyName = 'updateOn';
+const updateOnPropertyKey = 'updateOn';
 
-enum UpdateOn {
-    onSave = "onSave",
-    onType = "onType",
-}
+type UpdateOn = 'onSave' | 'onType';
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
     private readonly _onDidChangeTreeData: vscode.EventEmitter<outliner.GinkgoNode | undefined> = new vscode.EventEmitter<outliner.GinkgoNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<outliner.GinkgoNode | undefined> = this._onDidChangeTreeData.event;
 
-    private onDidChangeTextDocumentSubscription?: vscode.Disposable;
-    private onDidSaveTextDocumentSubscription?: vscode.Disposable;
+    private updateListener?: vscode.Disposable;
 
     private editor?: vscode.TextEditor;
     private roots: outliner.GinkgoNode[] = [];
@@ -32,8 +28,6 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     private lastClickedTime?: number;
 
     private documentChangedTimer?: NodeJS.Timeout;
-
-    private updateOn?: UpdateOn;
 
     constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
@@ -44,37 +38,25 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private applyConfiguration(): void {
-        const updateOnProperty = getConfiguration().get<UpdateOn | undefined>(updateConfigurationPropertyName);
-        switch (updateOnProperty) {
-            case UpdateOn.onSave:
-                this.updateOn = UpdateOn.onSave;
-                if (!this.onDidSaveTextDocumentSubscription) {
-                    this.onDidSaveTextDocumentSubscription = vscode.workspace.onDidSaveTextDocument(doc => this.onDocumentSaved(doc));
-                    this.ctx.subscriptions.push(this.onDidSaveTextDocumentSubscription);
-                }
-                if (this.onDidChangeTextDocumentSubscription) {
-                    this.onDidChangeTextDocumentSubscription.dispose();
-                    this.onDidChangeTextDocumentSubscription = undefined;
-                }
+        const updateOnPropertyVal = getConfiguration().get<UpdateOn>(updateOnPropertyKey);
+        if (this.updateListener) {
+            this.updateListener.dispose();
+        }
+        switch (updateOnPropertyVal) {
+            case 'onType':
+                this.updateListener = vscode.workspace.onDidChangeTextDocument(this.onDocumentChanged, this, this.ctx.subscriptions);
                 break;
-            case UpdateOn.onType:
-                this.updateOn = UpdateOn.onType;
-                if (this.onDidChangeTextDocumentSubscription) {
-                    this.onDidChangeTextDocumentSubscription = vscode.workspace.onDidChangeTextDocument(evt => this.onDocumentChanged(evt));
-                    this.ctx.subscriptions.push(this.onDidChangeTextDocumentSubscription);
-                }
-                if (this.onDidSaveTextDocumentSubscription) {
-                    this.onDidSaveTextDocumentSubscription.dispose();
-                    this.onDidSaveTextDocumentSubscription = undefined;
-                }
+            case 'onSave':
+                this.updateListener = vscode.workspace.onDidSaveTextDocument(this.onDocumentSaved, this, this.ctx.subscriptions);
                 break;
             default:
-                outputChannel.appendLine(`configuration ${updateConfigurationPropertyName} has unknown value ${updateOnProperty}`);
+                outputChannel.appendLine(`Defaulted property "${updateOnPropertyKey}" to "onType": configuration returned unknown value "${updateOnPropertyVal}"`);
+                this.updateListener = vscode.workspace.onDidChangeTextDocument(this.onDocumentChanged, this, this.ctx.subscriptions);
         }
     }
 
     private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
-        if (evt.affectsConfiguration(updateConfigurationPropertyName)) {
+        if (affectsConfiguration(evt)) {
             this.applyConfiguration();
         }
     }
@@ -86,9 +68,6 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onDocumentChanged(evt: vscode.TextDocumentChangeEvent): void {
-        if (this.updateOn !== UpdateOn.onType) {
-            return;
-        }
         if (evt.contentChanges.length === 0) {
             return;
         }
@@ -101,9 +80,6 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onDocumentSaved(doc: vscode.TextDocument): void {
-        if (this.updateOn !== UpdateOn.onSave) {
-            return;
-        }
         this.roots = [];
         this._onDidChangeTreeData.fire(undefined);
     }

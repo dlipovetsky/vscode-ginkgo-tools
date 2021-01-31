@@ -13,6 +13,10 @@ export function getConfiguration(): vscode.WorkspaceConfiguration {
 	return vscode.workspace.getConfiguration(name);
 }
 
+export function affectsConfiguration(evt: vscode.ConfigurationChangeEvent): boolean {
+	return evt.affectsConfiguration(name);
+}
+
 export let outputChannel: vscode.OutputChannel;
 
 export function activate(ctx: vscode.ExtensionContext) {
