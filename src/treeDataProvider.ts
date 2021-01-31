@@ -67,7 +67,17 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this._onDidChangeTreeData.fire(undefined);
     }
 
+    private isDocumentForActiveEditor(doc: vscode.TextDocument): boolean {
+        if (!this.editor) {
+            return false;
+        }
+        return this.editor.document.uri.toString() === doc.uri.toString();
+    }
+
     private onDocumentChanged(evt: vscode.TextDocumentChangeEvent): void {
+        if (!this.isDocumentForActiveEditor(evt.document)) {
+            return;
+        }
         if (evt.contentChanges.length === 0) {
             return;
         }
@@ -80,6 +90,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onDocumentSaved(doc: vscode.TextDocument): void {
+        if (!this.isDocumentForActiveEditor(doc)) {
+            return;
+        }
         this.roots = [];
         this._onDidChangeTreeData.fire(undefined);
     }
