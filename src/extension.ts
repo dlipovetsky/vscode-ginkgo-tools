@@ -1,20 +1,22 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as outliner from './outliner';
+import { Outliner } from './outliner';
 import { CachingOutliner } from './cachingOutliner';
 import * as symbolPicker from './symbolPicker';
 import * as treeDataProvider from './treeDataProvider';
 
-const name = 'ginkgooutline';
+const extensionName = 'ginkgooutline';
 const displayName = 'Ginkgo Outline';
 
+const defaultGinkgoPath = 'ginkgo';
+
 export function getConfiguration(): vscode.WorkspaceConfiguration {
-	return vscode.workspace.getConfiguration(name);
+	return vscode.workspace.getConfiguration(extensionName);
 }
 
-export function affectsConfiguration(evt: vscode.ConfigurationChangeEvent): boolean {
-	return evt.affectsConfiguration(name);
+export function affectsConfiguration(evt: vscode.ConfigurationChangeEvent, name: string): boolean {
+	return evt.affectsConfiguration(`${extensionName}.${name}`);
 }
 
 export let outputChannel: vscode.OutputChannel;
@@ -22,10 +24,17 @@ export let outputChannel: vscode.OutputChannel;
 export function activate(ctx: vscode.ExtensionContext) {
 	outputChannel = vscode.window.createOutputChannel(displayName);
 	ctx.subscriptions.push(outputChannel);
-
 	outputChannel.appendLine('Activating Ginkgo Outline');
 
-	const cachingOutliner = new CachingOutliner(outliner.fromDocument, 1000 * 60 * 60);
+	const ginkgoPath = getConfiguration().get('ginkgoPath', defaultGinkgoPath);
+	const outliner = new Outliner(ginkgoPath);
+	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
+		if (affectsConfiguration(evt, 'ginkgoPath')) {
+			outliner.ginkgoPath = getConfiguration().get('ginkgoPath', defaultGinkgoPath);
+		}
+	}));
+
+	const cachingOutliner = new CachingOutliner(doc => outliner.fromDocument(doc), 1000 * 60 * 60);
 
 	ctx.subscriptions.push(vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
 		if (!vscode.window.activeTextEditor) {

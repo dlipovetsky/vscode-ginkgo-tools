@@ -2,6 +2,12 @@
 
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
+
+export interface Outline {
+    nested: GinkgoNode[];
+    flat: GinkgoNode[];
+}
+
 export interface GinkgoNode {
     // Metadata
     // Keep in sync with https://github.com/onsi/ginkgo/tree/master/ginkgo/outline
@@ -17,37 +23,6 @@ export interface GinkgoNode {
     parent: GinkgoNode;
 }
 
-export interface Outline {
-    nested: GinkgoNode[];
-    flat: GinkgoNode[];
-}
-
-// fromDocument returns the ginkgo outline for the TextDocument. It calls ginkgo
-// as an external process.
-export async function fromDocument(doc: vscode.TextDocument): Promise<Outline> {
-    const output: string = await callGinkgoOutline(doc);
-    return fromJSON(output);
-}
-
-export function fromJSON(input: string): Outline {
-    const nested: GinkgoNode[] = JSON.parse(input);
-
-    const flat: GinkgoNode[] = [];
-    for (let n of nested) {
-        preOrder(n, function (n: GinkgoNode) {
-            // Construct the "flat" list of nodes
-            flat.push(n);
-
-            // Annotate every child with its parent
-            for (let c of n.nodes) {
-                c.parent = n;
-            }
-        });
-    }
-
-    return { nested, flat };
-}
-
 export function preOrder(node: GinkgoNode, f: Function): void {
     f(node);
     if (node.nodes) {
@@ -57,9 +32,22 @@ export function preOrder(node: GinkgoNode, f: Function): void {
     }
 }
 
-async function callGinkgoOutline(doc: vscode.TextDocument): Promise<string> {
+export class Outliner {
+
+    constructor(public ginkgoPath: string) { };
+
+    // fromDocument returns the ginkgo outline for the TextDocument. It calls ginkgo
+    // as an external process.
+    public async fromDocument(doc: vscode.TextDocument): Promise<Outline> {
+        const output: string = await callGinkgoOutline(this.ginkgoPath, doc);
+        return fromJSON(output);
+    }
+
+}
+
+export async function callGinkgoOutline(ginkgoPath: string, doc: vscode.TextDocument): Promise<string> {
     return await new Promise<string>((resolve, reject) => {
-        const p = cp.execFile("/home/dlipovetsky/projects/ginkgo/ginkgo/ginkgo", ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {
+        const p = cp.execFile(ginkgoPath, ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {
             if (err) {
                 let msg = `error running "${err.cmd}"`;
                 if (err.code) {
@@ -80,4 +68,23 @@ async function callGinkgoOutline(doc: vscode.TextDocument): Promise<string> {
             p.stdin.end(doc.getText());
         }
     });
+}
+
+export function fromJSON(input: string): Outline {
+    const nested: GinkgoNode[] = JSON.parse(input);
+
+    const flat: GinkgoNode[] = [];
+    for (let n of nested) {
+        preOrder(n, function (n: GinkgoNode) {
+            // Construct the "flat" list of nodes
+            flat.push(n);
+
+            // Annotate every child with its parent
+            for (let c of n.nodes) {
+                c.parent = n;
+            }
+        });
+    }
+
+    return { nested, flat };
 }

@@ -56,7 +56,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
-        if (affectsConfiguration(evt)) {
+        if (affectsConfiguration(evt, 'onUpdate')) {
             this.applyConfiguration();
         }
     }

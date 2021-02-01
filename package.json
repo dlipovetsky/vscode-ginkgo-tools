@@ -39,6 +39,11 @@
 					"enum": [ "onSave", "onType" ],
 					"enumDescriptions": [ "Update on file save", "Update as you type"],
 					"description": "When to update the outline view."
+				},
+				"ginkgooutline.ginkgoPath": {
+					"type": "string",
+					"default": "ginkgo",
+					"description": "Path to ginkgo executable."
 				}
 			}
 		}
