@@ -62,14 +62,19 @@ delegate to the Ginkgo language server, and I doubt that would get merged.
   doc.onDidChangeTextDocument event fires)
 - [ ] Conform to https://code.visualstudio.com/api/references/extension-guidelines
 - [x] Review error handling. Log errors where needed.
-- [ ] Make auto-refresh and double-click configuration options.
+- [ ] Make ginkgo path, auto-refresh, double-click, and cache TTL configuration options.
+- [ ] Don't refresh outline when active editor switches to one with an
+unsupported doc (e.g. the Output view is an editor), but document is still in
+focus.
+- [ ] Understand how configuration defaults and invalid inputs work.
+- [ ] Don't show notification dialogs again, unless delivering new information.
 - [x] Implement "cachedOutliner" that only calls `ginkgo` if there is no outline
   cached for the doc.version. Evict when doc closes or changes. See
   https://github.com/microsoft/vscode/blob/98106c48a07d4d07f0f71b4db9b3ff156f223339/src/vs/workbench/contrib/timeline/browser/timelinePane.ts#L77
 - [ ] Support vscode cancellation tokens where possible
 - [ ] Suggest fixes for errors in notifications (e.g. install ginkgo, if it's not found)
 - [ ] Context menu and "editor actions" for outline view, for example, to collapse or expand the tree, or a subtree.
-
+- [ ] Remove 'getConfiguration' calls from treeDataProvider; synchronize configuration in extension.ts, as done for Outliner.
 ## Implementation Notes
 
 - When 'contributes.viewContainers.panel' support was added, it doesn't support extension-qualified identifiers, e.g. 'myextension.panel',
