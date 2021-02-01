@@ -110,10 +110,11 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
                 await this.makeRoots();
             } catch (err) {
                 outputChannel.appendLine(`Could not populate the outline view: ${err}`);
-                const action = await vscode.window.showErrorMessage('Could not populate the outline view', ...['Open Log']);
-                if (action === 'Open Log') {
-                    outputChannel.show();
-                }
+                void vscode.window.showErrorMessage('Could not populate the outline view', ...['Open Log']).then(action => {
+                    if (action === 'Open Log') {
+                        outputChannel.show();
+                    }
+                });
                 return [];
             }
         }
