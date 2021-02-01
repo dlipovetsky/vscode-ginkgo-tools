@@ -22,21 +22,11 @@
 				"title": "Ginkgo: Go to symbol"
 			}
 		],
-		"viewsContainers": {
-			"panel": [
-				{
-					"id": "ginkgooutline",
-					"title": "Ginkgo Panel",
-					"icon": ""
-				}
-			]
-		},
 		"views": {
-			"ginkgooutline": [
+			"test": [
 				{
 					"id": "ginkgooutline.views.outline",
-					"name": "Ginkgo Outline",
-					"icon": ""
+					"name": "Ginkgo Outline"
 				}
 			]
 		},
