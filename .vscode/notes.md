@@ -1,5 +1,35 @@
 # Notes
 
+## Alternatives
+
+### Why not implement a DocumentSymbolProvider?
+
+https://code.visualstudio.com/api/references/vscode-api#DocumentSymbolProvider
+
+It's possible to implement a DocumentSymbolProvider for GInkgo, and register
+it to work with Go languuage files. It would work alongside the vscode-go
+DocumentSymbolProvider implementation.
+
+The Outline view would get a tree with Ginkgo symbols, next to tree with Go
+symbols. See screenshot in https://github.com/Microsoft/vscode/issues/60641.
+
+However, the Outline view wouldn't support features like running a test, or
+storing the outcome of the last run.
+
+Finally, Ginkgo is a test framework, and it seems to best map to the Test
+view on the activity bar.
+
+### Why not implement a client + server for Language Server Protocol (LSP)?
+
+https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+
+VSCode requires a document to have exactly one language. So a document
+couldn't both be identified as Go and Ginkgo. A feature request to handle
+HTML embedded in PHP came up:
+https://github.com/microsoft/vscode/issues/2915. The answer was: please
+change the PHP language server delegate to the HTML language server
+internally. From this, I assume that the Go language server would have to
+delegate to the Ginkgo language server, and I doubt that would get merged.
 ## Components
 
 - Outliner: This runs `ginkgo outline` and caches the outline for the file. The
@@ -31,7 +61,7 @@
 - [x] Implement auto-refreshing Outline view (refresh whenever
   doc.onDidChangeTextDocument event fires)
 - [ ] Conform to https://code.visualstudio.com/api/references/extension-guidelines
-- [ ] Review error handling. Log errors where needed.
+- [x] Review error handling. Log errors where needed.
 - [ ] Make auto-refresh and double-click configuration options.
 - [x] Implement "cachedOutliner" that only calls `ginkgo` if there is no outline
   cached for the doc.version. Evict when doc closes or changes. See
