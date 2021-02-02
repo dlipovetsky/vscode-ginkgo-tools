@@ -44,6 +44,18 @@
 					"type": "string",
 					"default": "ginkgo",
 					"description": "Path to ginkgo executable."
+				},
+				"ginkgooutline.doubleClickThreshold": {
+					"type": "number",
+					"default": 400,
+					"minimum": 0,
+					"description": "Maximum time, in milliseconds, between two clicks in a double click."
+				},
+				"ginkgooutline.cacheTTL": {
+					"type": "number",
+					"default": 3600,
+					"minimum": 0,
+					"description": "Maximum time, in seconds, to cache the result of `ginkgo outline` for a specific document version."
 				}
 			}
 		}
