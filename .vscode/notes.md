@@ -75,6 +75,7 @@ focus.
 - [ ] Suggest fixes for errors in notifications (e.g. install ginkgo, if it's not found)
 - [ ] Context menu and "editor actions" for outline view, for example, to collapse or expand the tree, or a subtree.
 - [ ] Remove 'getConfiguration' calls from treeDataProvider; synchronize configuration in extension.ts, as done for Outliner.
+- [ ] Use verbosity levels in log; hide debug information by default.
 ## Implementation Notes
 
 - When 'contributes.viewContainers.panel' support was added, it doesn't support extension-qualified identifiers, e.g. 'myextension.panel',
