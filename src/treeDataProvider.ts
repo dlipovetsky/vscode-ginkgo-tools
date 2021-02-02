@@ -127,28 +127,16 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     getTreeItem(element: outliner.GinkgoNode): vscode.TreeItem {
-        const label = `${element.name}: ${element.text}`;
+        const label = labelForGinkgoNode(element);
         const collapsibleState: vscode.TreeItemCollapsibleState = element.nodes.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
         const treeItem = new vscode.TreeItem(label, collapsibleState);
-
+        treeItem.iconPath = iconForGinkgoNode(element);
+        treeItem.tooltip = tooltipForGinkgoNode(element);
         treeItem.command = {
             command: this.clickTreeItemCommand,
             arguments: [element],
             title: ''
         };
-
-        // TODO treeItem.description
-
-        // TODO treeItem.iconPath
-
-        treeItem.tooltip = new vscode.MarkdownString(`**name:** ${element.name}  \n
-**text:** ${element.text}  \n
-**start:** ${element.start}  \n
-**end:** ${element.end}  \n
-**spec:** ${element.spec}  \n
-**focused:** ${element.focused}  \n
-**pending:** ${element.pending}`, false);
-
         return treeItem;
     }
 
@@ -188,4 +176,84 @@ function wasRecentlyClicked(lastClickedNode: outliner.GinkgoNode, lastClickedTim
 
 function isGoLanguage(doc: vscode.TextDocument): boolean {
     return doc.languageId === 'go';
+}
+
+// iconForGinkgoNode returns the icon representation of the ginkgo node.
+// See https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
+function iconForGinkgoNode(node: outliner.GinkgoNode): vscode.ThemeIcon | undefined {
+    if (node.spec) {
+        if (node.pending) {
+            return new vscode.ThemeIcon('stop');
+        }
+        if (node.focused) {
+            return new vscode.ThemeIcon('play-circle');
+        }
+        switch (node.name) {
+            case 'Measure':
+                return new vscode.ThemeIcon('dashboard');
+            default:
+                return new vscode.ThemeIcon('play');
+        }
+    }
+
+    switch (node.name) {
+        case 'DescribeTable':
+        case 'FDescribeTable':
+        case 'PDescribeTable':
+            return new vscode.ThemeIcon('list-tree');
+        case 'Context':
+        case 'FContext':
+        case 'PContext':
+        case 'XContext':
+        case 'Describe':
+        case 'FDescribe':
+        case 'PDescribe':
+        case 'XDescribe':
+        case 'When':
+        case 'FWhen':
+        case 'PWhen':
+        case 'XWhen':
+            return new vscode.ThemeIcon('symbol-package');
+        case 'By':
+            return new vscode.ThemeIcon('comment');
+        default:
+            return undefined;
+    }
+}
+
+function labelForGinkgoNode(node: outliner.GinkgoNode): string {
+    let prefix: string;
+    switch (node.name) {
+        case 'It':
+        case 'FIt':
+        case 'PIt':
+        case 'XIt':
+            prefix = 'It';
+            break;
+        case 'Specify':
+        case 'FSpecify':
+        case 'PSpecify':
+        case 'XSpecify':
+            prefix = 'Specify';
+            break;
+        case 'Measure':
+        case 'FMeasure':
+        case 'PMeasure':
+        case 'XMeasure':
+            prefix = 'Measure';
+            break;
+        default:
+            prefix = '';
+    }
+    return node.text ? `${prefix} ${node.text}` : node.name;
+}
+
+function tooltipForGinkgoNode(element: outliner.GinkgoNode): vscode.MarkdownString {
+    return new vscode.MarkdownString(`**name:** ${element.name}  \n
+**text:** ${element.text}  \n
+**start:** ${element.start}  \n
+**end:** ${element.end}  \n
+**spec:** ${element.spec}  \n
+**focused:** ${element.focused}  \n
+**pending:** ${element.pending}`, false);
 }
