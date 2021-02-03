@@ -62,11 +62,11 @@ delegate to the Ginkgo language server, and I doubt that would get merged.
   doc.onDidChangeTextDocument event fires)
 - [ ] Conform to https://code.visualstudio.com/api/references/extension-guidelines
 - [x] Review error handling. Log errors where needed.
-- [ ] Make ginkgo path, auto-refresh, double-click, and cache TTL configuration options.
+- [x] Make ginkgo path, auto-refresh, double-click, and cache TTL configuration options.
 - [ ] Don't refresh outline when active editor switches to one with an
 unsupported doc (e.g. the Output view is an editor), but document is still in
 focus.
-- [ ] Understand how configuration defaults and invalid inputs work.
+- [x] Understand how configuration defaults and invalid inputs work.
 - [ ] Don't show notification dialogs again, unless delivering new information.
 - [x] Implement "cachedOutliner" that only calls `ginkgo` if there is no outline
   cached for the doc.version. Evict when doc closes or changes. See
@@ -74,7 +74,7 @@ focus.
 - [ ] Support vscode cancellation tokens where possible
 - [ ] Suggest fixes for errors in notifications (e.g. install ginkgo, if it's not found)
 - [ ] Context menu and "editor actions" for outline view, for example, to collapse or expand the tree, or a subtree.
-- [ ] Remove 'getConfiguration' calls from treeDataProvider; synchronize configuration in extension.ts, as done for Outliner.
+- [x] Remove 'getConfiguration' calls from treeDataProvider; synchronize configuration in extension.ts, as done for Outliner.
 - [ ] Use verbosity levels in log; hide debug information by default.
 ## Implementation Notes
 
