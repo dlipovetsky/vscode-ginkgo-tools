@@ -76,6 +76,8 @@ focus.
 - [ ] Context menu and "editor actions" for outline view, for example, to collapse or expand the tree, or a subtree.
 - [x] Remove 'getConfiguration' calls from treeDataProvider; synchronize configuration in extension.ts, as done for Outliner.
 - [ ] Use verbosity levels in log; hide debug information by default.
+- [ ] Add license and copyright boilerplate.
+- [x] Show empty quickpick menu, instead of error notification, for non-go docs.
 ## Implementation Notes
 
 - When 'contributes.viewContainers.panel' support was added, it doesn't support extension-qualified identifiers, e.g. 'myextension.panel',

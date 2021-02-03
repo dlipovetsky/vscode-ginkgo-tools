@@ -92,7 +92,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         if (!this.editor) {
             return [];
         }
-        if (!isGoLanguage(this.editor.document)) {
+        if (this.editor.document.languageId !== 'go') {
             outputChannel.appendLine(`Did not populate outline view: document "${this.editor.document.uri}" language is not Go.`);
             return [];
         }
@@ -163,10 +163,6 @@ function wasRecentlyClicked(threshold: number, lastClickedNode: outliner.GinkgoN
     const isSameNode = lastClickedNode.start === currentNode.start && lastClickedNode.end === currentNode.end;
     const wasRecentlyClicked = (currentTime - lastClickedTime) < threshold;
     return isSameNode && wasRecentlyClicked;
-}
-
-function isGoLanguage(doc: vscode.TextDocument): boolean {
-    return doc.languageId === 'go';
 }
 
 function tooltipForGinkgoNode(element: outliner.GinkgoNode): vscode.MarkdownString {

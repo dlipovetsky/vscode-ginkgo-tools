@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
 import * as decoration from './decoration';
+import { outputChannel } from './extension';
 
 class GinkgoNodeItem implements vscode.QuickPickItem {
     label = '';
@@ -20,8 +21,13 @@ class GinkgoNodeItem implements vscode.QuickPickItem {
 }
 
 export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }) {
-    const out = await outlineFromDoc(editor.document);
+    if (editor.document.languageId !== 'go') {
+        outputChannel.appendLine(`Did not populate Go To Symbol menu: document "${editor.document.uri}" language is not Go.`);
+        void vscode.window.showQuickPick([]);
+        return;
+    }
 
+    const out = await outlineFromDoc(editor.document);
     const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
     picker.placeholder = 'Go to Ginkgo spec or container';
     picker.items = out.flat.map(n => new GinkgoNodeItem(n));
