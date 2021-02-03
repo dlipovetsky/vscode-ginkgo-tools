@@ -12,15 +12,20 @@ interface CacheValue {
 
 export class CachingOutliner {
 
-    private readonly docToOutlineMap: Map<string, CacheValue> = new Map();
+    private docToOutlineMap: Map<string, CacheValue> = new Map();
 
-    constructor(private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly ttlMs: number) { };
+    constructor(private outliner: outliner.Outliner, private readonly ttlMs: number) { };
+
+    public setOutliner(outliner: outliner.Outliner) {
+        this.outliner = outliner;
+        this.docToOutlineMap.clear();
+    }
 
     public async fromDocument(doc: vscode.TextDocument): Promise<outliner.Outline> {
         const key = doc.uri.toString();
         let val = this.docToOutlineMap.get(key);
         if (!val || val.docVersion !== doc.version) {
-            const outline = await this.outlineFromDoc(doc);
+            const outline = await this.outliner.fromDocument(doc);
             const handle = setTimeout(() => {
                 try {
                     this.docToOutlineMap.delete(key);
