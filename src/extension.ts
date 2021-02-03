@@ -9,6 +9,7 @@ import * as treeDataProvider from './treeDataProvider';
 const extensionName = 'ginkgooutline';
 const displayName = 'Ginkgo Outline';
 
+// These are used when a property key is missing from settings, or its value is invalid.
 const defaultGinkgoPath = 'ginkgo';
 const defaultUpdateOn = 'onType';
 const defaultUpdateOnTypeDelay = 1000;
