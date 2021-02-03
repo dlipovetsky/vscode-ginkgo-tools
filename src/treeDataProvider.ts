@@ -27,11 +27,12 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn) {
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
         this.setUpdateOn(this.updateOn);
+        this.setUpdateOnTypeDelay(this.updateOnTypeDelay);
     }
 
     public setUpdateOn(updateOn: UpdateOn) {
@@ -46,6 +47,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
                 this.updateListener = vscode.workspace.onDidSaveTextDocument(this.onDocumentSaved, this, this.ctx.subscriptions);
                 break;
         }
+    }
+
+    public setUpdateOnTypeDelay(updateOnTypeDelay: number) {
+        this.updateOnTypeDelay = Math.min(updateOnTypeDelay, 0);
     }
 
     private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
@@ -73,7 +78,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
             clearTimeout(this.documentChangedTimer);
             this.documentChangedTimer = undefined;
         }
-        this.documentChangedTimer = setTimeout(() => this._onDidChangeTreeData.fire(undefined), 1000);
+        this.documentChangedTimer = setTimeout(() => this._onDidChangeTreeData.fire(undefined), this.updateOnTypeDelay);
     }
 
     private onDocumentSaved(doc: vscode.TextDocument): void {

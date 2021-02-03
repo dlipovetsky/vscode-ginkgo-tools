@@ -40,6 +40,12 @@
 					"enumDescriptions": [ "Update on file save", "Update as you type"],
 					"description": "When to update the outline view."
 				},
+				"ginkgooutline.updateOnTypeDelay": {
+					"type": "number",
+					"default": 1000,
+					"minimum": 0,
+					"description": "Minimum time, in milliseconds, to wait before running `ginkgo outline` after a document update. Smaller values result in repeated calls to `ginkgo outline` as you type."
+				},
 				"ginkgooutline.ginkgoPath": {
 					"type": "string",
 					"default": "ginkgo",

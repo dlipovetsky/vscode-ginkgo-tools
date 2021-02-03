@@ -11,6 +11,7 @@ const displayName = 'Ginkgo Outline';
 
 const defaultGinkgoPath = 'ginkgo';
 const defaultUpdateOn = 'onType';
+const defaultUpdateOnTypeDelay = 1000;
 
 export function getConfiguration(): vscode.WorkspaceConfiguration {
 	return vscode.workspace.getConfiguration(extensionName);
@@ -56,11 +57,15 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 	}));
 
-	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(ctx, doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem', getConfiguration().get('updateOn', defaultUpdateOn));
+	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(ctx, doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem',
+		getConfiguration().get('updateOn', defaultUpdateOn), getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay));
 	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider));
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'updateOn')) {
 			ginkgoTreeDataProvider.setUpdateOn(getConfiguration().get('updateOn', defaultUpdateOn));
+		}
+		if (affectsConfiguration(evt, 'updateOnTypeDelay')) {
+			ginkgoTreeDataProvider.setUpdateOnTypeDelay(getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay));
 		}
 	}));
 }
