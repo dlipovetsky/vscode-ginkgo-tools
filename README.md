@@ -1,65 +1,36 @@
-# ginkgo-tools README
+# Ginkgo Tools for VS Code
 
-This is the README for your extension "ginkgo-tools". After writing up a brief description, we recommend including the following sections.
+This VS Code extension offers a set of tools for the [Ginkgo BDD Testing Framework](https://onsi.github.io/ginkgo/). The framework is used in many Go projects, notably Kubernetes.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Go To Symbol
 
-For example if there is an image subfolder under your extension project workspace:
+### Outline
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![Outline screenshot](images/outline-2.png)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Ginkgo
+
+The extension calls the `ginkgo` executable, but does not include it. To install, please follow [Getting Ginkgo](https://onsi.github.io/ginkgo/#getting-ginkgo).
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- `ginkgotools.ginkgoPath`: Path to ginkgo executable.
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+Find other, more advanced settings, in the VS Code Settings Editor.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+The [Go To Symbol](#go-to-symbol) and [Outline](#outline) features require a `ginkgo` executable that implements the `outline` sub-command. As of February 2 2021, only an executable built from the `master` branch implements it, but I expect the `outline` sub-command to be in a future Ginkgo release.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0
 
-### 1.0.0
+New Features:
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- [Go To Symbol](#go-to-symbol)
+- [Outline](#outline)
