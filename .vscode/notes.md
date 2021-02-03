@@ -78,6 +78,7 @@ focus.
 - [ ] Use verbosity levels in log; hide debug information by default.
 - [ ] Add license and copyright boilerplate.
 - [x] Show empty quickpick menu, instead of error notification, for non-go docs.
+- [ ] Show empty quickpick menu and outline view, instead of error notification, if go doc has no ginkgo symbols. Right now, `ginkgo outline` returns an error: `Error: error running "/home/dlipovetsky/projects/ginkgo/ginkgo/ginkgo outline --format=json -" (error code 1): error creating outline: file does not import "github.com/onsi/ginkgo" or "github.com/onsi/ginkgo/extensions/table`
 ## Implementation Notes
 
 - When 'contributes.viewContainers.panel' support was added, it doesn't support extension-qualified identifiers, e.g. 'myextension.panel',
