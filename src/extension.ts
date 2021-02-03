@@ -6,7 +6,7 @@ import { CachingOutliner } from './cachingOutliner';
 import * as symbolPicker from './symbolPicker';
 import * as treeDataProvider from './treeDataProvider';
 
-const extensionName = 'ginkgooutline';
+const extensionName = 'ginkgotools';
 const displayName = 'Ginkgo Outline';
 
 // These are used when a property key is missing from settings, or its value is invalid.
@@ -41,7 +41,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 	}));
 
-	ctx.subscriptions.push(vscode.commands.registerCommand('ginkgooutline.GotoSymbolInEditor', async () => {
+	ctx.subscriptions.push(vscode.commands.registerCommand('ginkgotools.GotoSymbolInEditor', async () => {
 		if (!vscode.window.activeTextEditor) {
 			outputChannel.appendLine('Cancelled QuickPick menu: no active text editor');
 			return;
@@ -57,12 +57,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 	}));
 
-	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(ctx, doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem',
+	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(ctx, doc => cachingOutliner.fromDocument(doc), 'ginkgotools.clickTreeItem',
 		getConfiguration().get('updateOn', defaultUpdateOn),
 		getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay),
 		getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold),
 	);
-	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider));
+	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgotools.views.outline', ginkgoTreeDataProvider));
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'updateOn')) {
 			ginkgoTreeDataProvider.setUpdateOn(getConfiguration().get('updateOn', defaultUpdateOn));

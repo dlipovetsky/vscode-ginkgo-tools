@@ -1,70 +1,27 @@
 {
-	"name": "ginkgo-outline",
-	"displayName": "Ginkgo Outline",
-	"description": "Display an outline of the ginkgo containers and specs in a file, and enable navigation to containers and specs using QuickView.",
+	"name": "ginkgo-tools",
+	"displayName": "Ginkgo Tools",
+	"description": "Tools (symbol picker, outline view) for the Ginkgo BDD Testing framework",
 	"version": "0.0.1",
 	"publisher": "dlipovetsky",
+	"author": {
+		"name": "Daniel Lipovetsky",
+		"url": "https://daniel.lipovetsky.me"
+	},
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
 	"categories": [
-		"Other"
+		"Testing"
 	],
-	"activationEvents": [
-		"onCommand:ginkgooutline.GotoSymbolInEditor",
-		"onView:ginkgooutline.views.outline"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "ginkgooutline.GotoSymbolInEditor",
-				"title": "Ginkgo: Go to symbol"
-			}
-		],
-		"views": {
-			"test": [
-				{
-					"id": "ginkgooutline.views.outline",
-					"name": "Ginkgo Outline"
-				}
-			]
-		},
-		"configuration": {
-			"title": "Ginkgo Outline",
-			"properties": {
-				"ginkgooutline.updateOn": {
-					"type": "string",
-					"default": "onType",
-					"enum": [ "onSave", "onType" ],
-					"enumDescriptions": [ "Update on file save", "Update as you type"],
-					"description": "When to update the outline view."
-				},
-				"ginkgooutline.updateOnTypeDelay": {
-					"type": "number",
-					"default": 1000,
-					"minimum": 0,
-					"description": "Minimum time, in milliseconds, to wait before running `ginkgo outline` after a document update. Smaller values result in repeated calls to `ginkgo outline` as you type."
-				},
-				"ginkgooutline.ginkgoPath": {
-					"type": "string",
-					"default": "ginkgo",
-					"description": "Path to ginkgo executable."
-				},
-				"ginkgooutline.doubleClickThreshold": {
-					"type": "number",
-					"default": 400,
-					"minimum": 0,
-					"description": "Maximum time, in milliseconds, between two clicks in a double click."
-				},
-				"ginkgooutline.cacheTTL": {
-					"type": "number",
-					"default": 3600000,
-					"minimum": 0,
-					"description": "Maximum time, in seconds, to cache the result of `ginkgo outline` for a specific document version."
-				}
-			}
-		}
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/dlipovetsky/ginkgo-tools"
+	},
+	"bugs": {
+		"url": "https://github.com/dlipovetsky/ginkgo-tools/issues"
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -90,5 +47,67 @@
 		"ts-node": "^9.1.1",
 		"typescript": "^4.1.2",
 		"vscode-test": "^1.4.1"
+	},
+	"activationEvents": [
+		"onCommand:ginkgotools.GotoSymbolInEditor",
+		"onView:ginkgotools.views.outline"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "ginkgotools.GotoSymbolInEditor",
+				"title": "Ginkgo: Go to symbol"
+			}
+		],
+		"views": {
+			"test": [
+				{
+					"id": "ginkgotools.views.outline",
+					"name": "Ginkgo"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Ginkgo Tools",
+			"properties": {
+				"ginkgotools.updateOn": {
+					"type": "string",
+					"default": "onType",
+					"enum": [
+						"onSave",
+						"onType"
+					],
+					"enumDescriptions": [
+						"Update on file save",
+						"Update as you type"
+					],
+					"description": "When to update the outline view."
+				},
+				"ginkgotools.updateOnTypeDelay": {
+					"type": "number",
+					"default": 1000,
+					"minimum": 0,
+					"description": "Minimum time, in milliseconds, to wait before running `ginkgo outline` after a document update. Smaller values result in repeated calls to `ginkgo outline` as you type."
+				},
+				"ginkgotools.ginkgoPath": {
+					"type": "string",
+					"default": "ginkgo",
+					"description": "Path to ginkgo executable."
+				},
+				"ginkgotools.doubleClickThreshold": {
+					"type": "number",
+					"default": 400,
+					"minimum": 0,
+					"description": "Maximum time, in milliseconds, between two clicks in a double click."
+				},
+				"ginkgotools.cacheTTL": {
+					"type": "number",
+					"default": 3600000,
+					"minimum": 0,
+					"description": "Maximum time, in seconds, to cache the result of `ginkgo outline` for a specific document version."
+				}
+			}
+		}
 	}
 }

@@ -1,6 +1,6 @@
-# ginkgo-outline README
+# ginkgo-tools README
 
-This is the README for your extension "ginkgo-outline". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "ginkgo-tools". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
