@@ -12,6 +12,7 @@ const displayName = 'Ginkgo Outline';
 const defaultGinkgoPath = 'ginkgo';
 const defaultUpdateOn = 'onType';
 const defaultUpdateOnTypeDelay = 1000;
+const defaultDoubleClickThreshold = 400;
 
 export function getConfiguration(): vscode.WorkspaceConfiguration {
 	return vscode.workspace.getConfiguration(extensionName);
@@ -58,7 +59,10 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}));
 
 	const ginkgoTreeDataProvider = new treeDataProvider.TreeDataProvider(ctx, doc => cachingOutliner.fromDocument(doc), 'ginkgooutline.clickTreeItem',
-		getConfiguration().get('updateOn', defaultUpdateOn), getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay));
+		getConfiguration().get('updateOn', defaultUpdateOn),
+		getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay),
+		getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold),
+		);
 	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgooutline.views.outline', ginkgoTreeDataProvider));
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'updateOn')) {
@@ -66,6 +70,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 		if (affectsConfiguration(evt, 'updateOnTypeDelay')) {
 			ginkgoTreeDataProvider.setUpdateOnTypeDelay(getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay));
+		}
+		if (affectsConfiguration(evt, 'doubleClickThreshold')) {
+			ginkgoTreeDataProvider.setDoubleClickThreshold(getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold));
 		}
 	}));
 }

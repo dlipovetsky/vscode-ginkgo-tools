@@ -5,12 +5,6 @@ import * as outliner from './outliner';
 import * as highlighter from './highlighter';
 import { outputChannel } from './extension';
 
-// doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
-// that are interpreted as one "double click," as opposed to separate single
-// clicks.
-// TODO: make this a configuration option
-const doubleClickTimeMS: number = 300;
-
 type UpdateOn = 'onSave' | 'onType';
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
 
@@ -27,7 +21,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number) {
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number, private doubleClickThreshold: number) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
@@ -51,6 +45,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     public setUpdateOnTypeDelay(updateOnTypeDelay: number) {
         this.updateOnTypeDelay = Math.min(updateOnTypeDelay, 0);
+    }
+
+    public setDoubleClickThreshold(doubleClickThreshold: number) {
+        this.doubleClickThreshold = Math.min(doubleClickThreshold, 0);
     }
 
     private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
@@ -143,7 +141,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         const now = Date.now();
         let recentlyClicked = false;
         if (this.lastClickedTime && this.lastClickedNode) {
-            recentlyClicked = wasRecentlyClicked(this.lastClickedNode, this.lastClickedTime, element, now);
+            recentlyClicked = wasRecentlyClicked(this.doubleClickThreshold, this.lastClickedNode, this.lastClickedTime, element, now);
         }
         this.lastClickedTime = now;
         this.lastClickedNode = element;
@@ -160,9 +158,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
 }
 
-function wasRecentlyClicked(lastClickedNode: outliner.GinkgoNode, lastClickedTime: number, currentNode: outliner.GinkgoNode, currentTime: number): boolean {
+function wasRecentlyClicked(threshold: number, lastClickedNode: outliner.GinkgoNode, lastClickedTime: number, currentNode: outliner.GinkgoNode, currentTime: number): boolean {
     const isSameNode = lastClickedNode.start === currentNode.start && lastClickedNode.end === currentNode.end;
-    const wasRecentlyClicked = (currentTime - lastClickedTime) < doubleClickTimeMS;
+    const wasRecentlyClicked = (currentTime - lastClickedTime) < threshold;
     return isSameNode && wasRecentlyClicked;
 }
 
