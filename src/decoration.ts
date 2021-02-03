@@ -22,6 +22,13 @@ export function iconForGinkgoNode(node: outliner.GinkgoNode): vscode.ThemeIcon |
     }
 
     switch (node.name) {
+        case 'BeforeEach':
+        case 'AfterEach':
+        case 'JustBeforeEach':
+        case 'JustAfterEach':
+        case 'BeforeSuite':
+        case 'AfterSuite':
+            return new vscode.ThemeIcon('wrench');
         case 'DescribeTable':
         case 'FDescribeTable':
         case 'PDescribeTable':
