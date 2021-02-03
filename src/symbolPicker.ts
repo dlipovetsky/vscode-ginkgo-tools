@@ -3,17 +3,19 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
+import * as decoration from './decoration';
 
 class GinkgoNodeItem implements vscode.QuickPickItem {
-    label: string;
+    label = '';
     description = '';
     detail = '';
-    node: outliner.GinkgoNode;
 
-    constructor(public n: outliner.GinkgoNode) {
-        // TODO: Prefix a "theme icon" to the label. Choose icon based on node.name (Describe, Context, It, etc).
-        this.label = `${n.name}: ${n.text}`;
-        this.node = n;
+    constructor(readonly node: outliner.GinkgoNode) {
+        const icon = decoration.iconForGinkgoNode(node);
+        if (icon) {
+            this.label += `$(${icon.id}) `;
+        }
+        this.label += decoration.labelForGinkgoNode(node);
     }
 }
 
