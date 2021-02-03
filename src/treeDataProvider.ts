@@ -3,15 +3,13 @@
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as highlighter from './highlighter';
-import { affectsConfiguration, getConfiguration, outputChannel } from './extension';
+import { outputChannel } from './extension';
 
 // doubleClickTimeMS is the maximum time, in mlliseconds, between two clicks
 // that are interpreted as one "double click," as opposed to separate single
 // clicks.
 // TODO: make this a configuration option
 const doubleClickTimeMS: number = 300;
-
-const updateOnPropertyKey = 'updateOn';
 
 type UpdateOn = 'onSave' | 'onType';
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
@@ -29,35 +27,24 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string) {
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
-        ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => this.onConfigurationChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
-        this.applyConfiguration();
+        this.setUpdateOn(this.updateOn);
     }
 
-    private applyConfiguration(): void {
-        const updateOnPropertyVal = getConfiguration().get<UpdateOn>(updateOnPropertyKey);
+    public setUpdateOn(updateOn: UpdateOn) {
         if (this.updateListener) {
             this.updateListener.dispose();
         }
-        switch (updateOnPropertyVal) {
+        switch (updateOn) {
             case 'onType':
                 this.updateListener = vscode.workspace.onDidChangeTextDocument(this.onDocumentChanged, this, this.ctx.subscriptions);
                 break;
             case 'onSave':
                 this.updateListener = vscode.workspace.onDidSaveTextDocument(this.onDocumentSaved, this, this.ctx.subscriptions);
                 break;
-            default:
-                outputChannel.appendLine(`Defaulted property "${updateOnPropertyKey}" to "onType": configuration returned unknown value "${updateOnPropertyVal}"`);
-                this.updateListener = vscode.workspace.onDidChangeTextDocument(this.onDocumentChanged, this, this.ctx.subscriptions);
-        }
-    }
-
-    private onConfigurationChanged(evt: vscode.ConfigurationChangeEvent): void {
-        if (affectsConfiguration(evt, 'onUpdate')) {
-            this.applyConfiguration();
         }
     }
 
