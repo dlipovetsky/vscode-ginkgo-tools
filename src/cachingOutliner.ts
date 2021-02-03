@@ -14,10 +14,15 @@ export class CachingOutliner {
 
     private docToOutlineMap: Map<string, CacheValue> = new Map();
 
-    constructor(private outliner: outliner.Outliner, private readonly ttlMs: number) { };
+    constructor(private outliner: outliner.Outliner, private cacheTTL: number) { };
 
     public setOutliner(outliner: outliner.Outliner) {
         this.outliner = outliner;
+        this.docToOutlineMap.clear();
+    }
+
+    public setCacheTTL(cacheTTL: number) {
+        this.cacheTTL = cacheTTL;
         this.docToOutlineMap.clear();
     }
 
@@ -32,7 +37,7 @@ export class CachingOutliner {
                 } catch (err) {
                     outputChannel.appendLine(`Could not evict outline for document $[key} from cache: ${err}`);
                 }
-            }, this.ttlMs);
+            }, this.cacheTTL);
 
             val = { docVersion: doc.version, outline: outline, timeout: handle };
             this.docToOutlineMap.set(key, val);

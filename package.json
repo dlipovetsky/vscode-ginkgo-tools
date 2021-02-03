@@ -59,7 +59,7 @@
 				},
 				"ginkgooutline.cacheTTL": {
 					"type": "number",
-					"default": 3600,
+					"default": 3600000,
 					"minimum": 0,
 					"description": "Maximum time, in seconds, to cache the result of `ginkgo outline` for a specific document version."
 				}

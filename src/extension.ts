@@ -14,6 +14,7 @@ const defaultGinkgoPath = 'ginkgo';
 const defaultUpdateOn = 'onType';
 const defaultUpdateOnTypeDelay = 1000;
 const defaultDoubleClickThreshold = 400;
+const defaultCacheTTL = 3600000;
 
 export function getConfiguration(): vscode.WorkspaceConfiguration {
 	return vscode.workspace.getConfiguration(extensionName);
@@ -30,10 +31,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 	ctx.subscriptions.push(outputChannel);
 	outputChannel.appendLine('Activating Ginkgo Outline');
 
-	const cachingOutliner = new CachingOutliner(new Outliner(getConfiguration().get('ginkgoPath', defaultGinkgoPath)), 1000 * 60 * 60);
+	const cachingOutliner = new CachingOutliner(new Outliner(getConfiguration().get('ginkgoPath', defaultGinkgoPath)), getConfiguration().get('cacheTTL', defaultCacheTTL));
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'ginkgoPath')) {
 			cachingOutliner.setOutliner(new Outliner(getConfiguration().get('ginkgoPath', defaultGinkgoPath)));
+		}
+		if (affectsConfiguration(evt, 'cacheTTL')) {
+			cachingOutliner.setCacheTTL(getConfiguration().get('cacheTTL', defaultCacheTTL));
 		}
 	}));
 
