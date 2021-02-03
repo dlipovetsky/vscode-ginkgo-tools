@@ -16,6 +16,7 @@ const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationTy
 });
 
 export function highlightNode(editor: vscode.TextEditor, node: outliner.GinkgoNode) {
+    // TODO: Remove this check if it is not necessary.
     if (editor.document.isClosed) {
         return;
     }
