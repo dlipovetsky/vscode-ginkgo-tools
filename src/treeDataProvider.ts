@@ -2,8 +2,8 @@
 
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
-import * as highlighter from './highlighter';
-import * as decoration from './decoration';
+import * as editorUtil from './util/editor';
+import * as decorationUtil from './util/decoration';
 import { outputChannel } from './extension';
 
 type UpdateOn = 'onSave' | 'onType';
@@ -118,10 +118,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     getTreeItem(element: outliner.GinkgoNode): vscode.TreeItem {
-        const label = decoration.labelForGinkgoNode(element);
+        const label = decorationUtil.labelForGinkgoNode(element);
         const collapsibleState: vscode.TreeItemCollapsibleState = element.nodes.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
         const treeItem = new vscode.TreeItem(label, collapsibleState);
-        treeItem.iconPath = decoration.iconForGinkgoNode(element);
+        treeItem.iconPath = decorationUtil.iconForGinkgoNode(element);
         treeItem.tooltip = tooltipForGinkgoNode(element);
         treeItem.command = {
             command: this.clickTreeItemCommand,
@@ -148,12 +148,12 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this.lastClickedNode = element;
 
         if (!recentlyClicked) {
-            highlighter.highlightNode(this.editor, element);
+            editorUtil.highlightNode(this.editor, element);
             return;
 
         }
-        highlighter.setSelectionToNodeStart(this.editor, element);
-        highlighter.highlightOff(this.editor);
+        editorUtil.setSelectionToNodeStart(this.editor, element);
+        editorUtil.highlightOff(this.editor);
         void vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
     }
 

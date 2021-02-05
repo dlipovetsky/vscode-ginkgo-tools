@@ -2,8 +2,8 @@
 
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
-import * as highlighter from './highlighter';
-import * as decoration from './decoration';
+import * as editorUtil from './util/editor';
+import * as decorationUtil from './util/decoration';
 import { outputChannel } from './extension';
 
 class GinkgoNodeItem implements vscode.QuickPickItem {
@@ -12,11 +12,11 @@ class GinkgoNodeItem implements vscode.QuickPickItem {
     detail = '';
 
     constructor(readonly node: outliner.GinkgoNode) {
-        const icon = decoration.iconForGinkgoNode(node);
+        const icon = decorationUtil.iconForGinkgoNode(node);
         if (icon) {
             this.label += `$(${icon.id}) `;
         }
-        this.label += decoration.labelForGinkgoNode(node);
+        this.label += decorationUtil.labelForGinkgoNode(node);
     }
 }
 
@@ -37,7 +37,7 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
         if (selection.length === 0) {
             return;
         }
-        highlighter.highlightNode(editor, selection[0].node);
+        editorUtil.highlightNode(editor, selection[0].node);
     });
     picker.onDidAccept(() => {
         if (picker.selectedItems.length === 0) {
@@ -45,14 +45,14 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
         }
         didAcceptWithItem = true;
         const node = picker.selectedItems[0].node;
-        highlighter.setSelectionToNodeStart(editor, node);
+        editorUtil.setSelectionToNodeStart(editor, node);
         picker.hide();
     });
     picker.onDidHide(() => {
         if (!didAcceptWithItem && oldRange) {
             editor.revealRange(oldRange, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         }
-        highlighter.highlightOff(editor);
+        editorUtil.highlightOff(editor);
         picker.dispose();
     });
     picker.show();

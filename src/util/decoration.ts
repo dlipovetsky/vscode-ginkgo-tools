@@ -1,6 +1,6 @@
 'use strict';
 
-import * as outliner from "./outliner";
+import * as outliner from "../outliner";
 import * as vscode from 'vscode';
 
 // iconForGinkgoNode returns the icon representation of the ginkgo node.

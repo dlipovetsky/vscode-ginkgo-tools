@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as outliner from './outliner';
+import * as outliner from '../outliner';
 
 const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationType({
     light: {
