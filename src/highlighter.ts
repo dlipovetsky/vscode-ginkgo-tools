@@ -16,10 +16,6 @@ const symbolHighlightDecorationType = vscode.window.createTextEditorDecorationTy
 });
 
 export function highlightNode(editor: vscode.TextEditor, node: outliner.GinkgoNode) {
-    // TODO: Remove this check if it is not necessary.
-    if (editor.document.isClosed) {
-        return;
-    }
     const range = rangeFromNode(editor.document, node);
     editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
     editor.setDecorations(symbolHighlightDecorationType, [range]);
