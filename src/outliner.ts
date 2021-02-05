@@ -45,6 +45,15 @@ export class Outliner {
 
 }
 
+export const ginkgoImportsNotFoundError = "error creating outline: file does not import \"github.com/onsi/ginkgo\" or \"github.com/onsi/ginkgo/extensions/table\"";
+
+export function isGinkgoImportsNotFoundError(err: Error): boolean {
+    if (!err.message) {
+        return false;
+    }
+    return err.message.indexOf(ginkgoImportsNotFoundError) > 0;
+}
+
 export async function callGinkgoOutline(ginkgoPath: string, doc: vscode.TextDocument): Promise<string> {
     return await new Promise<string>((resolve, reject) => {
         const p = cp.execFile(ginkgoPath, ['outline', '--format=json', '-'], {}, (err, stdout, stderr) => {

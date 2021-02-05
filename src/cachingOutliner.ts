@@ -7,7 +7,7 @@ import { outputChannel } from './extension';
 interface CacheValue {
     docVersion: number,
     outline: outliner.Outline,
-    timeout: NodeJS.Timeout,
+    timeout?: NodeJS.Timeout,
 }
 
 export class CachingOutliner {
@@ -30,16 +30,28 @@ export class CachingOutliner {
         const key = doc.uri.toString();
         let val = this.docToOutlineMap.get(key);
         if (!val || val.docVersion !== doc.version) {
-            const outline = await this.outliner.fromDocument(doc);
-            const handle = setTimeout(() => {
-                try {
-                    this.docToOutlineMap.delete(key);
-                } catch (err) {
-                    outputChannel.appendLine(`Could not evict outline for document $[key} from cache: ${err}`);
+            try {
+                const outline = await this.outliner.fromDocument(doc);
+                const handle = setTimeout(() => {
+                    try {
+                        this.docToOutlineMap.delete(key);
+                    } catch (err) {
+                        outputChannel.appendLine(`Could not evict outline for document $[key} from cache: ${err}`);
+                    }
+                }, this.cacheTTL);
+                val = { docVersion: doc.version, outline: outline, timeout: handle };
+            } catch (err) {
+                if (!outliner.isGinkgoImportsNotFoundError(err)) {
+                    throw err;
                 }
-            }, this.cacheTTL);
 
-            val = { docVersion: doc.version, outline: outline, timeout: handle };
+                // `ginkgo outline` successfully parsed the input, but could not
+                // generate an outline. Because the same error would be returned
+                // until the input changes, cache this document version forever.
+                const outline = { nested: [], flat: [] };
+                val = { docVersion: doc.version, outline: outline, timeout: undefined };
+                outputChannel.appendLine(`Could not create outline for document ${key} because it does not import ginkgo; caching forever for this document version`);
+            }
             this.docToOutlineMap.set(key, val);
         }
         return val.outline;
