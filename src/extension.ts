@@ -44,14 +44,14 @@ export function activate(ctx: vscode.ExtensionContext) {
 
 	ctx.subscriptions.push(vscode.commands.registerCommand('ginkgotools.GotoSymbolInEditor', async () => {
 		if (!vscode.window.activeTextEditor) {
-			outputChannel.appendLine('Cancelled QuickPick menu: no active text editor');
+			outputChannel.appendLine('Did not create the Go To Symbol menu: no active text editor');
 			return;
 		}
 		try {
 			await symbolPicker.fromTextEditor(vscode.window.activeTextEditor, doc => cachingOutliner.fromDocument(doc));
 		} catch (err) {
-			outputChannel.appendLine(`Could not create a QuickPick menu: ${err}`);
-			const action = await vscode.window.showErrorMessage('Could not create a QuickPick menu', ...['Open Log']);
+			outputChannel.appendLine(`Could not create the Go To Symbol menu: ${err}`);
+			const action = await vscode.window.showErrorMessage('Could not create the Go To Symbol menu', ...['Open Log']);
 			if (action === 'Open Log') {
 				outputChannel.show();
 			}
