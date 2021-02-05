@@ -29,6 +29,7 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
 
     const out = await outlineFromDoc(editor.document);
     const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
+    const oldRange = (editor.visibleRanges.length > 0) ? editor.visibleRanges[0] : undefined;
     picker.placeholder = 'Go to Ginkgo spec or container';
     picker.items = out.flat.map(n => new GinkgoNodeItem(n));
     picker.onDidChangeActive(selection => {
@@ -48,6 +49,9 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
     });
     picker.onDidHide(() => {
         highlighter.highlightOff(editor);
+        if (oldRange) {
+            editor.revealRange(oldRange, vscode.TextEditorRevealType.Default);
+        }
         picker.dispose();
     });
     picker.show();
