@@ -23,6 +23,15 @@ export class CachingOutliner {
 
     public setCacheTTL(cacheTTL: number) {
         this.cacheTTL = cacheTTL;
+        this.clear();
+    }
+
+    public clear() {
+        this.docToOutlineMap.forEach((val, key) => {
+            if (val.timeout) {
+                clearTimeout(val.timeout);
+            }
+        });
         this.docToOutlineMap.clear();
     }
 
