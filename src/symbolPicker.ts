@@ -34,24 +34,18 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
     picker.placeholder = 'Go to Ginkgo spec or container';
     picker.items = out.flat.map(n => new GinkgoNodeItem(n));
     picker.onDidChangeActive(selection => {
-        if (!selection[0]) {
+        if (selection.length === 0) {
             return;
         }
         highlighter.highlightNode(editor, selection[0].node);
     });
     picker.onDidAccept(() => {
-        const item = picker.selectedItems[0];
-        if (item) {
-            const start = editor.document.positionAt(item.node.start);
-
-            const acceptedSelection = new vscode.Selection(start, start);
-            editor.selection = acceptedSelection;
-
-            const newRange = new vscode.Range(acceptedSelection.start, acceptedSelection.end);
-            editor.revealRange(newRange, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
-
-            didAcceptWithItem = true;
+        if (picker.selectedItems.length === 0) {
+            return;
         }
+        didAcceptWithItem = true;
+        const node = picker.selectedItems[0].node;
+        highlighter.setSelectionToNodeStart(editor, node);
         picker.hide();
     });
     picker.onDidHide(() => {
