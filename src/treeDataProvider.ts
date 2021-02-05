@@ -147,14 +147,14 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this.lastClickedTime = now;
         this.lastClickedNode = element;
 
-        if (recentlyClicked) {
-            highlighter.highlightOff(this.editor);
-            const anchor = this.editor.document.positionAt(element.start);
-            this.editor.selection = new vscode.Selection(anchor, anchor);
-            await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+        if (!recentlyClicked) {
+            highlighter.highlightNode(this.editor, element);
             return;
+
         }
-        highlighter.highlightNode(this.editor, element);
+        highlighter.setSelectionToNodeStart(this.editor, element);
+        highlighter.highlightOff(this.editor);
+        void vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
     }
 
 }
