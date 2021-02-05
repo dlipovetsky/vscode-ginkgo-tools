@@ -45,11 +45,11 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     public setUpdateOnTypeDelay(updateOnTypeDelay: number) {
-        this.updateOnTypeDelay = Math.min(updateOnTypeDelay, 0);
+        this.updateOnTypeDelay = Math.max(updateOnTypeDelay, 0);
     }
 
     public setDoubleClickThreshold(doubleClickThreshold: number) {
-        this.doubleClickThreshold = Math.min(doubleClickThreshold, 0);
+        this.doubleClickThreshold = Math.max(doubleClickThreshold, 0);
     }
 
     private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
