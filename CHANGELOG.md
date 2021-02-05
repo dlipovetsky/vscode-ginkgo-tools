@@ -1,9 +1,8 @@
 # Change Log
 
-All notable changes to the "ginkgo-tools" extension will be documented in this file.
+## v0.1.0 - 5th Feb, 2021
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Enhancements
 
-## [Unreleased]
-
-- Initial release
+- Go To Symbol Menu
+- Test View

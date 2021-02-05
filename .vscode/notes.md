@@ -41,15 +41,6 @@ delegate to the Ginkgo language server, and I doubt that would get merged.
 - QuickPicker: This populates a QuickPick dropdown menu with symbols.
 - TreeDataProvider: This populates a TreeView with symbols.
 
-## Known Issues
-
-- The outline auto-refresh is very eager; changing a single character triggers
-  an update, invalidates the cache entry because the doc version increases, and
-  causes ginkgo outline to be called. Not sure how best to address this. Options:
-    - Auto-refresh on save only
-    - Implement a rate-limiting Outliner. If the rate limit is exceeded, return an empty outline.
-    - Cancellation tokens are _not_ supported, except for resolveTreeItem, which is only for tooltips
-
 ## Roadmap
 
 - [x] Skeleton
