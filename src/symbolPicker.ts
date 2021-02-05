@@ -30,6 +30,7 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
     const out = await outlineFromDoc(editor.document);
     const picker = vscode.window.createQuickPick<GinkgoNodeItem>();
     const oldRange = (editor.visibleRanges.length > 0) ? editor.visibleRanges[0] : undefined;
+    let didAcceptWithItem = false;
     picker.placeholder = 'Go to Ginkgo spec or container';
     picker.items = out.flat.map(n => new GinkgoNodeItem(n));
     picker.onDidChangeActive(selection => {
@@ -41,17 +42,23 @@ export async function fromTextEditor(editor: vscode.TextEditor, outlineFromDoc: 
     picker.onDidAccept(() => {
         const item = picker.selectedItems[0];
         if (item) {
-            highlighter.highlightOff(editor);
-            const anchor = editor.document.positionAt(item.node.start);
-            editor.selection = new vscode.Selection(anchor, anchor);
+            const start = editor.document.positionAt(item.node.start);
+
+            const acceptedSelection = new vscode.Selection(start, start);
+            editor.selection = acceptedSelection;
+
+            const newRange = new vscode.Range(acceptedSelection.start, acceptedSelection.end);
+            editor.revealRange(newRange, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+
+            didAcceptWithItem = true;
         }
-        picker.dispose();
+        picker.hide();
     });
     picker.onDidHide(() => {
-        highlighter.highlightOff(editor);
-        if (oldRange) {
-            editor.revealRange(oldRange, vscode.TextEditorRevealType.Default);
+        if (!didAcceptWithItem && oldRange) {
+            editor.revealRange(oldRange, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         }
+        highlighter.highlightOff(editor);
         picker.dispose();
     });
     picker.show();
