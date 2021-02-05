@@ -21,7 +21,7 @@ export function highlightNode(editor: vscode.TextEditor, node: outliner.GinkgoNo
         return;
     }
     const range = rangeFromNode(editor.document, node);
-    editor.revealRange(range);
+    editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
     editor.setDecorations(symbolHighlightDecorationType, [range]);
 }
 
