@@ -63,7 +63,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 		getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay),
 		getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold),
 	);
-	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgotools.views.outline', ginkgoTreeDataProvider));
+	const ginkgoTreeView = vscode.window.createTreeView('ginkgotools.views.outline', { treeDataProvider: ginkgoTreeDataProvider });
+	// ginkgoTreeDataProvider.SomeEvent(evt => {
+	// 	// e.g. "unable to create outline, etc"
+	// 	ginkgoTreeView.message = evt.message;
+	// })
+
+	ctx.subscriptions.push(ginkgoTreeView);
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'updateOn')) {
 			ginkgoTreeDataProvider.setUpdateOn(getConfiguration().get('updateOn', defaultUpdateOn));

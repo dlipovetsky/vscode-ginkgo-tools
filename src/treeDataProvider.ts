@@ -95,6 +95,18 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this._onDidChangeTreeData.fire(undefined);
     }
 
+    // TODO: consider getting all the data in a `getOutline` method, called from
+    // any method that fires the onDidChangeTreeData event. That way, the data
+    // is already there by the time getChildren is called.
+    //
+    // The methods that fire that event happen to be _listeners_ to vscode events.
+    // I don't know what it means for a listener to be long-running, or async.
+    //
+    // Also, according to https://code.visualstudio.com/api/references/vscode-api#api-patterns,
+    // methods that return a Thenable are awaited by vscode, which means that getChildren
+    // can/should be async.
+    //
+    // Might be time to ask the vscode devs.
     async getChildren(element?: outliner.GinkgoNode | undefined): Promise<outliner.GinkgoNode[] | undefined> {
         if (!this.editor) {
             return undefined;
