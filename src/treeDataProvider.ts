@@ -53,10 +53,17 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
     }
 
     private onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
+        if (editor && !isMainEditor(editor)) {
+            // If the user switches to a non-main editor, e.g., settings, or
+            // output, do not update the Outline view. This behavior is copied
+            // from the language-level Outline view.
+            return;
+        }
         this.editor = editor;
         this.roots = [];
         this._onDidChangeTreeData.fire(undefined);
     }
+
 
     private isDocumentForActiveEditor(doc: vscode.TextDocument): boolean {
         if (!this.editor) {
@@ -173,4 +180,12 @@ function tooltipForGinkgoNode(element: outliner.GinkgoNode): vscode.MarkdownStri
 **spec:** ${element.spec}  \n
 **focused:** ${element.focused}  \n
 **pending:** ${element.pending}`, false);
+}
+
+// isMainEditor returns true if the editor is one where a user is editing a Go file.
+// > Will be undefined in case this isn't one of the main editors, e.g. an
+// > embedded editor, or when the editor column is larger than three.
+// > -- https://code.visualstudio.com/api/references/vscode-api#TextEditor
+function isMainEditor(editor: vscode.TextEditor): boolean {
+    return editor.viewColumn !== undefined;
 }
