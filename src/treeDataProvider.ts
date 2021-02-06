@@ -95,13 +95,13 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this._onDidChangeTreeData.fire(undefined);
     }
 
-    async getChildren(element?: outliner.GinkgoNode | undefined): Promise<outliner.GinkgoNode[]> {
+    async getChildren(element?: outliner.GinkgoNode | undefined): Promise<outliner.GinkgoNode[] | undefined> {
         if (!this.editor) {
-            return [];
+            return undefined;
         }
         if (this.editor.document.languageId !== 'go') {
             outputChannel.appendLine(`Did not populate outline view: document "${this.editor.document.uri}" language is not Go.`);
-            return [];
+            return undefined;
         }
         if (this.roots.length === 0) {
             try {
@@ -114,7 +114,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
                         outputChannel.show();
                     }
                 });
-                return [];
+                return undefined;
             }
         }
 
