@@ -6,9 +6,11 @@ This VS Code extension offers a set of tools for the [Ginkgo BDD Testing Framewo
 
 ### Go To Symbol Menu
 
+![Go To Symbol Menu screenshot](images/go-to-symbol-menu.gif)
+
 ### Test View
 
-![Outline screenshot](images/outline-2.png)
+![Outline screenshot](images/test-view.png)
 
 ## Requirements
 
