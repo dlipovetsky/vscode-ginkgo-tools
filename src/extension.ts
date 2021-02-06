@@ -32,7 +32,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	outputChannel.appendLine('Activating Ginkgo Outline');
 
 	const cachingOutliner = new CachingOutliner(new Outliner(getConfiguration().get('ginkgoPath', defaultGinkgoPath)), getConfiguration().get('cacheTTL', defaultCacheTTL));
-	ctx.subscriptions.push({ dispose: () => { cachingOutliner.clear(); }});
+	ctx.subscriptions.push({ dispose: () => { cachingOutliner.clear(); } });
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
 		if (affectsConfiguration(evt, 'ginkgoPath')) {
 			cachingOutliner.setOutliner(new Outliner(getConfiguration().get('ginkgoPath', defaultGinkgoPath)));
