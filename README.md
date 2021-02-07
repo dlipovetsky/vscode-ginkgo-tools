@@ -10,7 +10,7 @@ This VS Code extension offers a set of tools for the [Ginkgo BDD Testing Framewo
 
 ### Test View
 
-![Outline screenshot](images/test-view.png)
+![Outline screenshot](images/test-view.gif)
 
 ## Requirements
 
@@ -24,5 +24,3 @@ This VS Code extension offers a set of tools for the [Ginkgo BDD Testing Framewo
 - `ginkgotools.ginkgoPath`: Path to the `ginkgo` executable.
 
 Find other, more advanced settings, in the VS Code Settings Editor.
-
-## Release Notes
