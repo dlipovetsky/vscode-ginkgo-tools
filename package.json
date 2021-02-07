@@ -1,8 +1,8 @@
 {
 	"name": "ginkgo-tools",
 	"displayName": "Ginkgo Tools",
-	"description": "Tools (symbol picker, outline view) for the Ginkgo BDD Testing framework",
-	"version": "0.0.1",
+	"description": "Tools for the Ginkgo BDD Testing framework",
+	"version": "0.1.0",
 	"publisher": "dlipovetsky",
 	"author": {
 		"name": "Daniel Lipovetsky",
@@ -23,6 +23,12 @@
 	"bugs": {
 		"url": "https://github.com/dlipovetsky/ginkgo-tools/issues"
 	},
+	"keywords": [
+		"ginkgo",
+		"bdd",
+		"golang",
+		"go"
+	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
