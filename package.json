@@ -13,7 +13,7 @@
 		"vscode": "^1.52.0"
 	},
 	"categories": [
-		"Testing"
+		"Other"
 	],
 	"private": true,
 	"repository": {
@@ -25,9 +25,9 @@
 	},
 	"keywords": [
 		"ginkgo",
-		"bdd",
 		"golang",
-		"go"
+		"go",
+		"symbol"
 	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
