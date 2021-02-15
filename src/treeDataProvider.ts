@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as outliner from './outliner';
 import * as editorUtil from './util/editor';
 import * as decorationUtil from './util/decoration';
-import { outputChannel } from './extension';
+import { getConfiguration, outputChannel } from './extension';
 
 type UpdateOn = 'onSave' | 'onType';
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
@@ -155,13 +155,52 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this.lastClickedNode = element;
 
         if (!recentlyClicked) {
+            // only enter inside here with one click
             editorUtil.highlightNode(this.editor, element);
             return;
 
         }
+        // only come to here with double click
         editorUtil.setSelectionToNodeStart(this.editor, element);
         editorUtil.highlightOff(this.editor);
         void vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+
+        this.executeTestSpec(this.editor.document.fileName, element)
+    }
+
+    getFullSpecText(element: outliner.GinkgoNode): string {
+        let specText = ''
+        if (element.name.includes('When')) {
+            specText = 'when ' + element.text
+        } else {
+            specText = element.text
+        }
+
+        if (element.parent) {
+            return this.getFullSpecText(element.parent) + ' ' + specText
+        }
+
+        return specText
+    }
+
+    executeTestSpec(fileName: string, element: outliner.GinkgoNode, ) {
+        let specText = ''
+        if (element.text != '') {
+            specText = this.getFullSpecText(element)
+        }
+
+        if (specText != '') {
+            const terminal = vscode.window.activeTerminal
+            const ginkgoPath = getConfiguration().get('ginkgoPath')
+            if (terminal && ginkgoPath) {
+                const fileNameSplited = fileName.split('/')
+                fileNameSplited.pop()
+                const folderPath = fileNameSplited.join('/')
+                terminal.sendText(`${ginkgoPath} -focus "${specText}" -r "${folderPath}"`, true)
+            } else if (!terminal) {
+                outputChannel.appendLine("Terminal is not opened, so we can't run the gingko test command");
+            }
+        }
     }
 
 }
