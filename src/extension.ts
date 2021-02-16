@@ -62,6 +62,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		getConfiguration().get('updateOn', defaultUpdateOn),
 		getConfiguration().get('updateOnTypeDelay', defaultUpdateOnTypeDelay),
 		getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold),
+		getConfiguration().get('ginkgoPath', defaultGinkgoPath),
 	);
 	ctx.subscriptions.push(vscode.window.registerTreeDataProvider('ginkgotools.views.outline', ginkgoTreeDataProvider));
 	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(evt => {
@@ -73,6 +74,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 		if (affectsConfiguration(evt, 'doubleClickThreshold')) {
 			ginkgoTreeDataProvider.setDoubleClickThreshold(getConfiguration().get('doubleClickThreshold', defaultDoubleClickThreshold));
+		}
+		if (affectsConfiguration(evt, 'ginkgoPath')) {
+			ginkgoTreeDataProvider.setGinkgoPath(getConfiguration().get('ginkgoPath', defaultGinkgoPath));
 		}
 	}));
 }

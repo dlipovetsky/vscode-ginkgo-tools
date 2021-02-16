@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
+import * as specExecutor from './specExecutor';
 import * as editorUtil from './util/editor';
 import * as decorationUtil from './util/decoration';
 import { outputChannel } from './extension';
@@ -22,7 +23,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number, private doubleClickThreshold: number) {
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number, private doubleClickThreshold: number, private ginkgoPath: string) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
@@ -46,6 +47,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     public setUpdateOnTypeDelay(updateOnTypeDelay: number) {
         this.updateOnTypeDelay = Math.max(updateOnTypeDelay, 0);
+    }
+
+    public setGinkgoPath(ginkgoPath: string) {
+        this.ginkgoPath = ginkgoPath;
     }
 
     public setDoubleClickThreshold(doubleClickThreshold: number) {
@@ -155,15 +160,19 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         this.lastClickedNode = element;
 
         if (!recentlyClicked) {
+            // only enter inside here with one click
             editorUtil.highlightNode(this.editor, element);
             return;
 
         }
+        // only come to here with double click
         editorUtil.setSelectionToNodeStart(this.editor, element);
         editorUtil.highlightOff(this.editor);
         void vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
-    }
 
+        const executor = new specExecutor.SpecExecutor(this.ginkgoPath, element, this.editor.document.fileName);
+        executor.executeTestSpec(vscode.window.activeTerminal, outputChannel);
+    }
 }
 
 function wasRecentlyClicked(threshold: number, lastClickedNode: outliner.GinkgoNode, lastClickedTime: number, currentNode: outliner.GinkgoNode, currentTime: number): boolean {
