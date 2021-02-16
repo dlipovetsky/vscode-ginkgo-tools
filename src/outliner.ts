@@ -20,7 +20,7 @@ export interface GinkgoNode {
     pending: boolean;
 
     nodes: GinkgoNode[];
-    parent: GinkgoNode;
+    parent?: GinkgoNode;
 }
 
 export function preOrder(node: GinkgoNode, f: Function): void {

@@ -29,7 +29,7 @@ describe('outline.fromJSON', function () {
         for (let tn of got.nested) {
             for (let c of tn.nodes) {
                 outliner.preOrder(c, function (n: outliner.GinkgoNode) {
-                    expect(n.parent.nodes).includes(n, `node ${util.inspect(n, false, 1)} is not a child of its parent, ${util.inspect(n.parent, false, 1)}`);
+                    expect(n.parent?.nodes).includes(n, `node ${util.inspect(n, false, 1)} is not a child of its parent, ${util.inspect(n.parent, false, 1)}`);
                 });
             }
         }

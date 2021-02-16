@@ -2,9 +2,10 @@
 
 import * as vscode from 'vscode';
 import * as outliner from './outliner';
+import * as specExecutor from './specExecutor';
 import * as editorUtil from './util/editor';
 import * as decorationUtil from './util/decoration';
-import { getConfiguration, outputChannel } from './extension';
+import { outputChannel } from './extension';
 
 type UpdateOn = 'onSave' | 'onType';
 export class TreeDataProvider implements vscode.TreeDataProvider<outliner.GinkgoNode> {
@@ -22,7 +23,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     private documentChangedTimer?: NodeJS.Timeout;
 
-    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number, private doubleClickThreshold: number) {
+    constructor(private readonly ctx: vscode.ExtensionContext, private readonly outlineFromDoc: { (doc: vscode.TextDocument): Promise<outliner.Outline> }, private readonly clickTreeItemCommand: string, private updateOn: UpdateOn, private updateOnTypeDelay: number, private doubleClickThreshold: number, private ginkgoPath: string) {
         ctx.subscriptions.push(vscode.commands.registerCommand(this.clickTreeItemCommand, async (node) => this.clickTreeItem(node)));
         ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(evt => this.onActiveEditorChanged(evt)));
         this.editor = vscode.window.activeTextEditor;
@@ -46,6 +47,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
 
     public setUpdateOnTypeDelay(updateOnTypeDelay: number) {
         this.updateOnTypeDelay = Math.max(updateOnTypeDelay, 0);
+    }
+
+    public setGinkgoPath(ginkgoPath: string) {
+        this.ginkgoPath = ginkgoPath;
     }
 
     public setDoubleClickThreshold(doubleClickThreshold: number) {
@@ -165,44 +170,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<outliner.Ginkgo
         editorUtil.highlightOff(this.editor);
         void vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
 
-        this.executeTestSpec(this.editor.document.fileName, element)
+        const executor = new specExecutor.SpecExecutor(this.ginkgoPath, element, this.editor.document.fileName);
+        executor.executeTestSpec(vscode.window.activeTerminal, outputChannel);
     }
-
-    getFullSpecText(element: outliner.GinkgoNode): string {
-        let specText = ''
-        if (element.name.includes('When')) {
-            specText = 'when ' + element.text
-        } else {
-            specText = element.text
-        }
-
-        if (element.parent) {
-            return this.getFullSpecText(element.parent) + ' ' + specText
-        }
-
-        return specText
-    }
-
-    executeTestSpec(fileName: string, element: outliner.GinkgoNode, ) {
-        let specText = ''
-        if (element.text != '') {
-            specText = this.getFullSpecText(element)
-        }
-
-        if (specText != '') {
-            const terminal = vscode.window.activeTerminal
-            const ginkgoPath = getConfiguration().get('ginkgoPath')
-            if (terminal && ginkgoPath) {
-                const fileNameSplited = fileName.split('/')
-                fileNameSplited.pop()
-                const folderPath = fileNameSplited.join('/')
-                terminal.sendText(`${ginkgoPath} -focus "${specText}" -r "${folderPath}"`, true)
-            } else if (!terminal) {
-                outputChannel.appendLine("Terminal is not opened, so we can't run the gingko test command");
-            }
-        }
-    }
-
 }
 
 function wasRecentlyClicked(threshold: number, lastClickedNode: outliner.GinkgoNode, lastClickedTime: number, currentNode: outliner.GinkgoNode, currentTime: number): boolean {
